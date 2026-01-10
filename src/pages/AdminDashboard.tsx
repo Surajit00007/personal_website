@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     setLocalContent(siteContent);
   }, [siteContent]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Clean up projects tags before saving
     const cleanContent = {
       ...localContent,
@@ -57,10 +57,13 @@ const AdminDashboard = () => {
       }))
     };
 
-    updateSiteContent(cleanContent);
-    // Optionally update local view to clean version
-    setLocalContent(cleanContent);
-    toast.success('Content saved successfully!');
+    try {
+      await updateSiteContent(cleanContent);
+      // Optionally update local view to clean version
+      setLocalContent(cleanContent);
+    } catch (error) {
+      console.error("Save failed", error);
+    }
   };
 
   const handleLogout = () => {
@@ -133,6 +136,7 @@ const AdminDashboard = () => {
       setShowCropModal(false);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
+      setRotation(0);
       setRotation(0);
       toast.success('Profile image updated! Remember to click Save.');
     } catch (e) {

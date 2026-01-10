@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export interface Project {
   id: string;
@@ -36,7 +38,8 @@ interface AdminContextType {
   login: (username: string, password: string) => boolean;
   logout: () => void;
   siteContent: SiteContent;
-  updateSiteContent: (newContent: SiteContent) => void;
+  updateSiteContent: (newContent: SiteContent) => Promise<void>;
+  isLoading: boolean;
 }
 
 const defaultContent: SiteContent = {
@@ -113,21 +116,100 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [siteContent, setSiteContent] = useState<SiteContent>(() => {
-    const saved = localStorage.getItem('_sc_v2_'); // New key for new structure
-    return saved ? JSON.parse(saved) : defaultContent;
-  });
+  const [siteContent, setSiteContent] = useState<SiteContent>(defaultContent);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initial Content Fetch from Supabase
   useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching content from Supabase...');
+
+        const [settingsRes, projectsRes] = await Promise.all([
+          supabase.from('site_settings').select('*').eq('id', 'global').single(),
+          supabase.from('projects').select('*').order('created_at', { ascending: false })
+        ]);
+
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
+          console.error('Error fetching settings:', settingsRes.error);
+        }
+
+        if (projectsRes.error) {
+          console.error('Error fetching projects:', projectsRes.error);
+        }
+
+        // If no settings exist, we assume it's a fresh DB and seed it
+        if (!settingsRes.data) {
+          console.log('No data found in Supabase. Seeding initial content...');
+          await seedInitialData();
+          return;
+        }
+
+        const newContent: SiteContent = {
+          about: settingsRes.data.about,
+          contact: settingsRes.data.contact,
+          projects: projectsRes.data || [],
+        };
+
+        setSiteContent(newContent);
+      } catch (error) {
+        console.error('Unexpected error fetching content:', error);
+        toast.error('Failed to load content from server. Using local defaults.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContent();
+
     const session = sessionStorage.getItem('_as_');
     if (session === btoa('authenticated')) {
       setIsAdmin(true);
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('_sc_v2_', JSON.stringify(siteContent));
-  }, [siteContent]);
+  const seedInitialData = async () => {
+    try {
+      // Check for existing local data to migrate
+      const localSaved = localStorage.getItem('_sc_v2_');
+      const dataToSeed: SiteContent = localSaved ? JSON.parse(localSaved) : defaultContent;
+
+      console.log('Seeding data source:', localSaved ? 'LocalStorage' : 'Default Content');
+
+      // 1. Insert global settings
+      const { error: settingsError } = await supabase.from('site_settings').upsert({
+        id: 'global',
+        about: dataToSeed.about,
+        contact: dataToSeed.contact
+      });
+
+      if (settingsError) throw settingsError;
+
+      // 2. Insert projects
+      // Remove legacy 'id' to act as new inserts so Supabase generates UUIDs
+      const projectsToInsert = dataToSeed.projects.map(({ id, ...rest }) => rest);
+
+      const { data: insertedProjects, error: projectsError } = await supabase
+        .from('projects')
+        .insert(projectsToInsert)
+        .select();
+
+      if (projectsError) throw projectsError;
+
+      // Update local state with the newly generated IDs
+      setSiteContent({
+        ...dataToSeed,
+        projects: insertedProjects as Project[]
+      });
+
+      console.log('Database seeded successfully!');
+      toast.success('Database migrated with existing content.');
+    } catch (error) {
+      console.error('Error seeding database:', error);
+      toast.error('Failed to initialize database.');
+    }
+  };
 
   const login = (username: string, password: string): boolean => {
     if (username === 'surajit' && password === '26122004') {
@@ -143,12 +225,95 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem('_as_');
   };
 
-  const updateSiteContent = (newContent: SiteContent) => {
-    setSiteContent(newContent);
+  const updateSiteContent = async (newContent: SiteContent) => {
+    try {
+      toast.loading('Saving to database...');
+
+      // 1. Update Settings
+      const { error: settingsError } = await supabase
+        .from('site_settings')
+        .upsert({
+          id: 'global',
+          about: newContent.about,
+          contact: newContent.contact,
+          updated_at: new Date().toISOString()
+        });
+
+      if (settingsError) throw settingsError;
+
+      // 2. Update Projects
+      // We need to handle Add/Update/Delete
+      // First, get current DB projects to check for deletions
+      const { data: currentDbProjects } = await supabase.from('projects').select('id');
+      const currentDbIds = currentDbProjects?.map(p => p.id) || [];
+      const newIds = newContent.projects.map(p => p.id);
+
+      // Delete missing projects
+      const idsToDelete = currentDbIds.filter(id => !newIds.includes(id));
+      if (idsToDelete.length > 0) {
+        await supabase.from('projects').delete().in('id', idsToDelete);
+      }
+
+      // Upsert current projects
+      for (const project of newContent.projects) {
+        // If it's a legacy string ID (from previous local storage) or temp ID, we might need special handling.
+        // But for simplicity in this "sync" function:
+        // If ID looks like a valid UUID, we upsert.
+        // If NOT, we insert (and let DB generate new UUID).
+        // BUT, if we insert, the UI still holds the old ID until we refresh.
+        // It is safer to:
+        //   1. Check if ID exists in DB.
+        //   2. If yes, update.
+        //   3. If no (it's new), insert.
+        // Since we are using upsert, we just need to ensure the ID is valid for UUID column.
+
+        // Check if ID is likely a temp ID (numeric timestamp like '173655...') or legacy '1','2'
+        // UUIDs are 36 chars with dashes.
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(project.id);
+
+        if (!isUUID) {
+          // It is a new or legacy project. Insert as new.
+          const { id, ...projectData } = project; // Drop the invalid ID
+          await supabase.from('projects').insert(projectData);
+        } else {
+          // It is an existing valid project. Update.
+          await supabase.from('projects').upsert(project);
+        }
+      }
+
+      // 3. Refresh State to get canonical source of truth (including new UUIDs)
+      const { data: freshProjects } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const { data: freshSettings } = await supabase
+        .from('site_settings')
+        .select('*')
+        .eq('id', 'global')
+        .single();
+
+      if (freshProjects && freshSettings) {
+        setSiteContent({
+          about: freshSettings.about,
+          contact: freshSettings.contact,
+          projects: freshProjects as Project[],
+        });
+      }
+
+      toast.dismiss();
+      toast.success('Saved successfully to Supabase!');
+
+    } catch (error) {
+      console.error('Error updating content:', error);
+      toast.dismiss();
+      toast.error('Failed to save changes.');
+      throw error;
+    }
   };
 
   return (
-    <AdminContext.Provider value={{ isAdmin, login, logout, siteContent, updateSiteContent }}>
+    <AdminContext.Provider value={{ isAdmin, login, logout, siteContent, updateSiteContent, isLoading }}>
       {children}
     </AdminContext.Provider>
   );
