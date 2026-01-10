@@ -98,6 +98,15 @@ const defaultContent: SiteContent = {
       github: 'https://github.com/Surajit00007',
       category: 'PERSONAL',
     },
+    {
+      id: '6',
+      title: 'CENTRALISED FILE-SHARING SYSTEM WITH DHCP & FTP Server',
+      subtitle: 'Computer Networks',
+      date: 'JAN 2026',
+      description: 'Implemented a centralised file-sharing network with dynamic IP allocation using DHCP and secure FTP-based file transfer across multiple departmental subnets, connected via static routing and DHCP relay in Cisco Packet Tracer.',
+      tags: ['DHCP', 'FTP', 'Static Routing', 'Subnetting', 'Networking'],
+      category: 'ACADEMIC',
+    }
   ],
   contact: {
     title: 'Get in Touch',
@@ -172,7 +181,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const seedInitialData = async () => {
     try {
       // Check for existing local data to migrate
-      const localSaved = localStorage.getItem('_sc_v2_');
+      const localSaved = localStorage.getItem('_sc_v4_');
       const dataToSeed: SiteContent = localSaved ? JSON.parse(localSaved) : defaultContent;
 
       console.log('Seeding data source:', localSaved ? 'LocalStorage' : 'Default Content');
@@ -205,8 +214,13 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
       console.log('Database seeded successfully!');
       toast.success('Database migrated with existing content.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error seeding database:', error);
+      // Log more detail if it's a Supabase error
+      if (error?.message) console.error('Supabase message:', error.message);
+      if (error?.details) console.error('Supabase details:', error.details);
+      if (error?.hint) console.error('Supabase hint:', error.hint);
+
       toast.error('Failed to initialize database.');
     }
   };
