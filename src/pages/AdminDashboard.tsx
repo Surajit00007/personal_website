@@ -48,7 +48,18 @@ const AdminDashboard = () => {
   }, [siteContent]);
 
   const handleSave = () => {
-    updateSiteContent(localContent);
+    // Clean up projects tags before saving
+    const cleanContent = {
+      ...localContent,
+      projects: localContent.projects.map(p => ({
+        ...p,
+        tags: p.tags.map(t => t.trim()).filter(Boolean)
+      }))
+    };
+
+    updateSiteContent(cleanContent);
+    // Optionally update local view to clean version
+    setLocalContent(cleanContent);
     toast.success('Content saved successfully!');
   };
 
@@ -174,7 +185,8 @@ const AdminDashboard = () => {
   };
 
   const updateProjectTags = (id: string, tagsString: string) => {
-    const tags = tagsString.split(',').map(t => t.trim()).filter(Boolean);
+    // Allow intermediate states by not filtering empty strings matching the UI behavior
+    const tags = tagsString.split(',');
     updateProject(id, 'tags', tags);
   };
 
@@ -340,7 +352,7 @@ const AdminDashboard = () => {
                             <div className="relative">
                               <Tag className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
                               <Input
-                                value={project.tags.join(', ')}
+                                value={project.tags.join(',')}
                                 onChange={(e) => updateProjectTags(project.id, e.target.value)}
                                 className="pl-8"
                               />
