@@ -105,7 +105,7 @@ const CertificatesSection = () => {
                     {certificates.map((cert, index) => {
                         const Icon = cert.icon;
                         return (
-                            <div key={index} className="certificate-card glass p-8 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center md:items-start border border-white/10">
+                            <div key={index} className="certificate-card glass p-8 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center md:items-start border border-white/10 transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:-translate-y-1">
                                 <div className={`w-20 h-20 shrink-0 rounded-2xl bg-gradient-to-br ${cert.gradient} p-4 flex items-center justify-center`}>
                                     <Icon size={40} weight="light" className="text-white" />
                                 </div>

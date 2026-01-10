@@ -153,7 +153,7 @@ const AboutSection = () => {
                 <img
                   alt="Surajit Sahoo"
                   className="w-full h-full object-cover"
-                  src={siteContent.profileImage || profileImage}
+                  src={siteContent.about.profileImage || profileImage}
                 />
               </div>
             </div>
@@ -172,17 +172,11 @@ const AboutSection = () => {
         {/* Content */}
         <div ref={contentRef}>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="text-gradient">About Me</span>
+            <span className="text-gradient">{siteContent.about.title}</span>
           </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-            I'm an aspiring AI/ML Engineer passionate about building intelligent systems that solve real-world problems.
-            With a strong foundation in machine learning, deep learning, and data science, I enjoy exploring cutting-edge
-            technologies and transforming complex data into actionable insights.
-          </p>
-          <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-            My journey involves working with neural networks, natural language processing, computer vision, and IoT systems.
-            I believe in continuous learning and pushing the boundaries of what's possible with AI.
-          </p>
+          <div className="text-muted-foreground text-lg leading-relaxed mb-8 whitespace-pre-line">
+            {siteContent.about.description}
+          </div>
 
           {/* Skills Grid */}
           <div>

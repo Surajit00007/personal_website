@@ -238,8 +238,13 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent transition-all duration-300 cursor-default inline-block;
     background-image: var(--gradient-neon);
+  }
+
+  .text-gradient:hover {
+    filter: drop-shadow(0 0 10px hsla(var(--neon-blue), 0.5)) drop-shadow(0 0 20px hsla(var(--neon-violet), 0.3));
+    transform: scale(1.02);
   }
 
   .text-gradient-primary {

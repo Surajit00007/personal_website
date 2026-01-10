@@ -5,69 +5,32 @@ import { GithubLogo, Robot, ChartPie, Cpu, ChartLine } from '@phosphor-icons/rea
 
 gsap.registerPlugin(ScrollTrigger);
 
-const academicProjects = [
-  {
-    title: 'INTELLIGENT CHATBOT DEVELOPMENT',
-    subtitle: 'Transformer-based AI',
-    date: 'May 2025',
-    description: 'Built an intelligent conversational chatbot using transformer models trained on Cornell Movie Dialogs datasets, enabling human-like responses through contextual understanding and self-attention mechanisms. Fine-tuned the model for relevance, tone consistency, and response quality using techniques like beam search and sampling.',
-    icon: Robot,
-    tags: ['Transformers', 'NLP', 'Python'],
-    github: 'https://github.com/Surajit00007',
-    gradient: 'from-neon-blue to-neon-violet',
-  },
-  {
-    title: 'AGRICULTURAL COMMODITY PRICE PREDICTION',
-    subtitle: 'Deep Learning / time-series',
-    date: 'DEC 2025',
-    description: 'Built an intelligent prediction system using deep learning. Performed rigorous EDA, feature engineering (lags, rolling statistics, seasonality encoding) and time-aware train–test splitting, achieving improved forecasting accuracy measured via RMSE, MAE, R², and MAPE.',
-    icon: ChartLine,
-    tags: ['Deep Learning', 'EDA', 'Forecasting'],
-    gradient: 'from-neon-violet to-neon-pink',
-  }
-];
 
-const personalProjects = [
-  {
-    title: 'LOCAL AI CHATBOT',
-    subtitle: 'Privacy-focused LLM Prototype',
-    date: 'Dec 2025',
-    description: 'Developed a ChatGPT-like chatbot that runs completely on a local laptop using phi3, llama3, and mistral via Ollama. Works fully offline with no internet or API dependency, ensuring total data privacy. Built with Python and Streamlit, featuring custom system prompts and chat memory.',
-    icon: Robot,
-    tags: ['Ollama', 'LLM', 'Python', 'Pushing Boundaries'],
-    github: 'https://github.com/Surajit00007/Customised_GPT_project',
-    gradient: 'from-neon-blue to-neon-cyan',
-  },
-  {
-    title: 'SWALLET APP- Expense tracker',
-    subtitle: 'Personal Finance App',
-    date: 'March 2025',
-    description: 'Developed Swallet, a personal finance tracking app using Streamlit, enabling users to log income and expenses in INR with intuitive UI and date selection via Google Calendar integration. Implemented data visualization using pie charts and graphs for spending insights; ensured local CSV-based storage to maintain user privacy.',
-    icon: ChartPie,
-    tags: ['Streamlit', 'Data Viz', 'Python'],
-    github: 'https://github.com/Surajit00007',
-    gradient: 'from-neon-pink to-neon-cyan',
-  },
-  {
-    title: 'AUTOMATIC ROOM LIGHT SYSTEM',
-    subtitle: 'IoT Project',
-    date: 'Jun 2024',
-    description: 'Designed and implemented a microcontroller-based automatic room light system with a bidirectional counter using an infrared sensor and Arduino Uno, enabling lights to toggle based on human presence. Developed the control logic using Embedded C, integrated infrared relay switching, and documented the design with flowcharts.',
-    icon: Cpu,
-    tags: ['Arduino', 'IoT', 'Embedded C'],
-    github: 'https://github.com/Surajit00007',
-    gradient: 'from-neon-cyan to-neon-blue',
-  }
-];
 
-const ProjectCard = ({ project }: { project: any }) => {
-  const Icon = project.icon;
+import { useAdmin } from '@/contexts/AdminContext';
+
+const ProjectCard = ({ project, index }: { project: any, index: number }) => {
+  // Cycle through gradients based on index
+  const gradients = [
+    'from-neon-blue to-neon-violet',
+    'from-neon-violet to-neon-pink',
+    'from-neon-pink to-neon-cyan',
+    'from-neon-cyan to-neon-blue',
+  ];
+  const gradient = gradients[index % gradients.length];
+
+  // Choose icon based on tags/title or default
+  let Icon = Robot;
+  if (project.tags.includes('IoT') || project.tags.includes('Arduino')) Icon = Cpu;
+  else if (project.tags.includes('Data Viz') || project.title.toLowerCase().includes('prediction')) Icon = ChartLine;
+  else if (project.title.toLowerCase().includes('finance') || project.title.toLowerCase().includes('tracker')) Icon = ChartPie;
+
   return (
     <div className="project-card-wrapper h-full">
       <div className="project-card h-full flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
-          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${project.gradient} p-3 flex items-center justify-center`}>
+          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} p-3 flex items-center justify-center`}>
             <Icon size={32} weight="light" className="text-white" />
           </div>
           <span className="text-sm text-muted-foreground">{project.date}</span>
@@ -112,6 +75,10 @@ const ProjectCard = ({ project }: { project: any }) => {
 
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const { siteContent } = useAdmin();
+
+  const academicProjects = siteContent.projects.filter(p => p.category === 'ACADEMIC');
+  const personalProjects = siteContent.projects.filter(p => p.category === 'PERSONAL');
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -202,7 +169,7 @@ const ProjectsSection = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {academicProjects.map((project, index) => (
-              <ProjectCard key={index} project={project} />
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         </div>
@@ -215,7 +182,7 @@ const ProjectsSection = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {personalProjects.map((project, index) => (
-              <ProjectCard key={index} project={project} />
+              <ProjectCard key={project.id} project={project} index={index + academicProjects.length} />
             ))}
           </div>
         </div>

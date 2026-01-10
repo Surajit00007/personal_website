@@ -8,7 +8,10 @@ import { toast } from '@/hooks/use-toast';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { useAdmin } from '@/contexts/AdminContext';
+
 const ContactSection = () => {
+  const { siteContent } = useAdmin();
   const sectionRef = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,12 +101,7 @@ const ContactSection = () => {
     }, 1500);
   };
 
-  const socials = [
-    { icon: GithubLogo, href: 'https://github.com/Surajit00007', label: 'GitHub' },
-    { icon: LinkedinLogo, href: 'https://linkedin.com/in/surajit-sahoo-084173335', label: 'LinkedIn' },
-    { icon: InstagramLogo, href: 'https://instagram.com/surajit._007', label: 'Instagram' },
-    { icon: Envelope, href: 'mailto:surajit007inc@gmail.com', label: 'Email' },
-  ];
+  /* socials array removed in favor of siteContent.contact.socials */
 
   return (
     <section ref={sectionRef} id="contact" className="py-10 md:py-16 relative overflow-hidden">
@@ -114,10 +112,10 @@ const ContactSection = () => {
       <div className="container mx-auto px-6">
         <div className="contact-title text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            <span className="text-gradient">Get in Touch</span>
+            <span className="text-gradient">{siteContent.contact.title}</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Have a project in mind or want to collaborate? I'd love to hear from you!
+            {siteContent.contact.description}
           </p>
         </div>
 
@@ -190,7 +188,7 @@ const ContactSection = () => {
             <div className="glass-card p-8">
               <h3 className="text-2xl font-bold text-foreground mb-4">Let's Connect</h3>
               <p className="text-muted-foreground mb-8 leading-relaxed">
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+                Feel free to verify my identity or check out my code on these platforms.
               </p>
 
               {/* Social Links */}
@@ -199,16 +197,20 @@ const ContactSection = () => {
                   Find me on
                 </h4>
                 <div className="flex gap-4">
-                  {socials.map((social) => {
-                    const Icon = social.icon;
+                  {siteContent.contact.socials.map((social, index) => {
+                    let Icon = GithubLogo;
+                    if (social.platform === 'LinkedIn') Icon = LinkedinLogo;
+                    else if (social.platform === 'Instagram') Icon = InstagramLogo;
+                    else if (social.platform === 'Email') Icon = Envelope;
+
                     return (
                       <a
-                        key={social.label}
-                        href={social.href}
+                        key={index}
+                        href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="social-icon w-14 h-14 glass flex items-center justify-center rounded-xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300 group"
-                        aria-label={social.label}
+                        aria-label={social.platform}
                       >
                         <Icon
                           size={28}
