@@ -25,6 +25,7 @@ export interface Certificate {
   date: string;
   description: string[];
   imageUrl: string;
+  linkedinUrl?: string;
 }
 
 export interface SiteContent {
@@ -129,7 +130,8 @@ const defaultContent: SiteContent = {
         'Built an AI-powered financial chatbot using Python.',
         'Analyzed and interpreted data from 10-K and 10-Q financial reports.'
       ],
-      imageUrl: '', // Needs update
+      imageUrl: '',
+      linkedinUrl: '',
     },
     {
       id: '2',
@@ -142,6 +144,7 @@ const defaultContent: SiteContent = {
         'Completed various labs, trivia challenges, and skill badges in the Google Cloud ecosystem.'
       ],
       imageUrl: '',
+      linkedinUrl: '',
     },
     {
       id: '3',
@@ -155,6 +158,7 @@ const defaultContent: SiteContent = {
         'Identify real-world use cases for intelligent agent deployment.'
       ],
       imageUrl: '',
+      linkedinUrl: '',
     }
   ],
   contact: {

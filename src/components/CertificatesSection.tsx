@@ -94,6 +94,20 @@ const CertificatesSection = () => {
                                     <span className="text-muted-foreground font-mono">{cert.date}</span>
                                 </div>
 
+                                {cert.linkedinUrl && (
+                                    <div className="mb-4">
+                                        <a
+                                            href={cert.linkedinUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors border border-primary/20"
+                                        >
+                                            View Credential
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-16,0V59.31l-66.34,66.35a8,8,0,0,1-11.32-11.32L196.69,48H128a8,8,0,0,1,0-16h88a8,8,0,0,1,8,8Z"></path></svg>
+                                        </a>
+                                    </div>
+                                )}
+
                                 <ul className="space-y-3 text-muted-foreground text-left">
                                     {cert.description.map((item, i) => (
                                         <li key={i} className="flex items-start gap-3">
