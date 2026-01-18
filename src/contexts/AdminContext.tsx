@@ -18,6 +18,15 @@ export interface SocialLink {
   url: string;
 }
 
+export interface Certificate {
+  id: string;
+  title: string;
+  issuer: string;
+  date: string;
+  description: string[];
+  imageUrl: string;
+}
+
 export interface SiteContent {
   about: {
     title: string;
@@ -25,6 +34,7 @@ export interface SiteContent {
     profileImage: string | null;
   };
   projects: Project[];
+  certificates: Certificate[];
   contact: {
     title: string;
     description: string;
@@ -39,6 +49,7 @@ interface AdminContextType {
   logout: () => void;
   siteContent: SiteContent;
   updateSiteContent: (newContent: SiteContent) => Promise<void>;
+  uploadImage: (file: File, bucket?: string) => Promise<string>;
   isLoading: boolean;
 }
 
@@ -108,6 +119,44 @@ const defaultContent: SiteContent = {
       category: 'ACADEMIC',
     }
   ],
+  certificates: [
+    {
+      id: '1',
+      title: 'GENAI JOB SIMULATION',
+      issuer: 'FORAGE (BOSTON CONSULTING GROUP)',
+      date: 'DEC 2025',
+      description: [
+        'Built an AI-powered financial chatbot using Python.',
+        'Analyzed and interpreted data from 10-K and 10-Q financial reports.'
+      ],
+      imageUrl: '', // Needs update
+    },
+    {
+      id: '2',
+      title: 'GOOGLE CLOUD ARCADE TROOPER',
+      issuer: 'GOOGLE CLOUD',
+      date: 'JUN 2025',
+      description: [
+        'Achieved Trooper Tier in the Google Cloud Arcade Summer Batch (APR - JUN) 2025.',
+        'Gained hands-on experience with BigQuery, Kubernetes, and AI/ML tools on GCP.',
+        'Completed various labs, trivia challenges, and skill badges in the Google Cloud ecosystem.'
+      ],
+      imageUrl: '',
+    },
+    {
+      id: '3',
+      title: 'SALESFORCE AGENTBLAZE CHAMPIONS BADGE',
+      issuer: 'SALESFORCE',
+      date: 'JUN 2025',
+      description: [
+        'Confidently explain Agentforce concepts and their business impact.',
+        'Gain foundational knowledge of agent technology.',
+        'Build an AI-powered agent.',
+        'Identify real-world use cases for intelligent agent deployment.'
+      ],
+      imageUrl: '',
+    }
+  ],
   contact: {
     title: 'Get in Touch',
     description: "Have a project in mind or want to collaborate? I'd love to hear from you!",
@@ -135,9 +184,10 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(true);
         console.log('Fetching content from Supabase...');
 
-        const [settingsRes, projectsRes] = await Promise.all([
+        const [settingsRes, projectsRes, certificatesRes] = await Promise.all([
           supabase.from('site_settings').select('*').eq('id', 'global').single(),
-          supabase.from('projects').select('*').order('created_at', { ascending: false })
+          supabase.from('projects').select('*').order('created_at', { ascending: false }),
+          supabase.from('certificates').select('*').order('created_at', { ascending: false })
         ]);
 
         if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
@@ -146,6 +196,10 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
         if (projectsRes.error) {
           console.error('Error fetching projects:', projectsRes.error);
+        }
+
+        if (certificatesRes.error) {
+          console.error('Error fetching certificates:', certificatesRes.error);
         }
 
         // If no settings exist, we assume it's a fresh DB and seed it
@@ -159,6 +213,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           about: settingsRes.data.about,
           contact: settingsRes.data.contact,
           projects: projectsRes.data || [],
+          certificates: certificatesRes.data || [],
         };
 
         setSiteContent(newContent);
@@ -196,9 +251,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       if (settingsError) throw settingsError;
 
       // 2. Insert projects
-      // Remove legacy 'id' to act as new inserts so Supabase generates UUIDs
       const projectsToInsert = dataToSeed.projects.map(({ id, ...rest }) => rest);
-
       const { data: insertedProjects, error: projectsError } = await supabase
         .from('projects')
         .insert(projectsToInsert)
@@ -206,21 +259,27 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
       if (projectsError) throw projectsError;
 
+      // 3. Insert certificates
+      const certificatesToInsert = dataToSeed.certificates.map(({ id, ...rest }) => rest);
+      const { data: insertedCertificates, error: certificatesError } = await supabase
+        .from('certificates')
+        .insert(certificatesToInsert)
+        .select();
+
+      if (certificatesError) throw certificatesError;
+
       // Update local state with the newly generated IDs
       setSiteContent({
         ...dataToSeed,
-        projects: insertedProjects as Project[]
+        projects: insertedProjects as Project[],
+        certificates: insertedCertificates as Certificate[]
       });
 
       console.log('Database seeded successfully!');
       toast.success('Database migrated with existing content.');
     } catch (error: any) {
       console.error('Error seeding database:', error);
-      // Log more detail if it's a Supabase error
       if (error?.message) console.error('Supabase message:', error.message);
-      if (error?.details) console.error('Supabase details:', error.details);
-      if (error?.hint) console.error('Supabase hint:', error.hint);
-
       toast.error('Failed to initialize database.');
     }
   };
@@ -237,6 +296,33 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setIsAdmin(false);
     sessionStorage.removeItem('_as_');
+  };
+
+  const uploadImage = async (file: File, bucket = 'portfolio-assets'): Promise<string> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Upload failed:', error);
+      // Fallback to base64 if upload fails (e.g. storage not configured)
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    }
   };
 
   const updateSiteContent = async (newContent: SiteContent) => {
@@ -256,62 +342,54 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       if (settingsError) throw settingsError;
 
       // 2. Update Projects
-      // We need to handle Add/Update/Delete
-      // First, get current DB projects to check for deletions
       const { data: currentDbProjects } = await supabase.from('projects').select('id');
       const currentDbIds = currentDbProjects?.map(p => p.id) || [];
       const newIds = newContent.projects.map(p => p.id);
-
-      // Delete missing projects
       const idsToDelete = currentDbIds.filter(id => !newIds.includes(id));
       if (idsToDelete.length > 0) {
         await supabase.from('projects').delete().in('id', idsToDelete);
       }
 
-      // Upsert current projects
       for (const project of newContent.projects) {
-        // If it's a legacy string ID (from previous local storage) or temp ID, we might need special handling.
-        // But for simplicity in this "sync" function:
-        // If ID looks like a valid UUID, we upsert.
-        // If NOT, we insert (and let DB generate new UUID).
-        // BUT, if we insert, the UI still holds the old ID until we refresh.
-        // It is safer to:
-        //   1. Check if ID exists in DB.
-        //   2. If yes, update.
-        //   3. If no (it's new), insert.
-        // Since we are using upsert, we just need to ensure the ID is valid for UUID column.
-
-        // Check if ID is likely a temp ID (numeric timestamp like '173655...') or legacy '1','2'
-        // UUIDs are 36 chars with dashes.
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(project.id);
-
         if (!isUUID) {
-          // It is a new or legacy project. Insert as new.
-          const { id, ...projectData } = project; // Drop the invalid ID
+          const { id, ...projectData } = project;
           await supabase.from('projects').insert(projectData);
         } else {
-          // It is an existing valid project. Update.
           await supabase.from('projects').upsert(project);
         }
       }
 
-      // 3. Refresh State to get canonical source of truth (including new UUIDs)
-      const { data: freshProjects } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // 3. Update Certificates
+      const { data: currentDbCertificates } = await supabase.from('certificates').select('id');
+      const currentCertIds = currentDbCertificates?.map(c => c.id) || [];
+      const newCertIds = newContent.certificates.map(c => c.id);
+      const certsToDelete = currentCertIds.filter(id => !newCertIds.includes(id));
+      if (certsToDelete.length > 0) {
+        await supabase.from('certificates').delete().in('id', certsToDelete);
+      }
 
-      const { data: freshSettings } = await supabase
-        .from('site_settings')
-        .select('*')
-        .eq('id', 'global')
-        .single();
+      for (const cert of newContent.certificates) {
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cert.id);
+        if (!isUUID) {
+          const { id, ...certData } = cert;
+          await supabase.from('certificates').insert(certData);
+        } else {
+          await supabase.from('certificates').upsert(cert);
+        }
+      }
 
-      if (freshProjects && freshSettings) {
+      // 4. Refresh State
+      const { data: freshProjects } = await supabase.from('projects').select('*').order('created_at', { ascending: false });
+      const { data: freshCertificates } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
+      const { data: freshSettings } = await supabase.from('site_settings').select('*').eq('id', 'global').single();
+
+      if (freshProjects && freshSettings && freshCertificates) {
         setSiteContent({
           about: freshSettings.about,
           contact: freshSettings.contact,
           projects: freshProjects as Project[],
+          certificates: freshCertificates as Certificate[],
         });
       }
 
@@ -327,7 +405,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AdminContext.Provider value={{ isAdmin, login, logout, siteContent, updateSiteContent, isLoading }}>
+    <AdminContext.Provider value={{ isAdmin, login, logout, siteContent, updateSiteContent, uploadImage, isLoading }}>
       {children}
     </AdminContext.Provider>
   );

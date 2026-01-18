@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAdmin, Project, SiteContent } from '@/contexts/AdminContext';
+import { useAdmin, Project, SiteContent, Certificate } from '@/contexts/AdminContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LogOut, Save, Image, Plus, Trash, ExternalLink, Calendar, Tag, Briefcase } from 'lucide-react';
+import { LogOut, Save, Image, Plus, Trash, ExternalLink, Calendar, Tag, Briefcase, Award, GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 import Cropper from 'react-easy-crop';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -21,7 +21,7 @@ interface CroppedArea {
 }
 
 const AdminDashboard = () => {
-  const { isAdmin, logout, siteContent, updateSiteContent } = useAdmin();
+  const { isAdmin, logout, siteContent, updateSiteContent, uploadImage } = useAdmin();
   const navigate = useNavigate();
 
   const [localContent, setLocalContent] = useState<SiteContent>(siteContent);
@@ -36,6 +36,8 @@ const AdminDashboard = () => {
   const [projectSearch, setProjectSearch] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const certFileInputRef = useRef<HTMLInputElement>(null);
+  const [activeCertId, setActiveCertId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -71,7 +73,7 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  // Image Handling
+  // Image Handling (Profile)
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -153,6 +155,37 @@ const AdminDashboard = () => {
     };
   };
 
+  // Certificate Image Handling
+  const handleCertImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && activeCertId) {
+      toast.loading("Uploading image...");
+      try {
+        const url = await uploadImage(file, 'certificates');
+        setLocalContent(prev => ({
+          ...prev,
+          certificates: prev.certificates.map(c => c.id === activeCertId ? { ...c, imageUrl: url } : c)
+        }));
+        toast.dismiss();
+        toast.success("Certificate image uploaded!");
+      } catch (error) {
+        console.error(error);
+        toast.dismiss();
+        toast.error("Upload failed.");
+      } finally {
+        if (certFileInputRef.current) {
+          certFileInputRef.current.value = '';
+        }
+        setActiveCertId(null);
+      }
+    }
+  };
+
+  const triggerCertImageUpload = (id: string) => {
+    setActiveCertId(id);
+    certFileInputRef.current?.click();
+  };
+
   // Project Management
   const addProject = () => {
     const newProject: Project = {
@@ -194,6 +227,45 @@ const AdminDashboard = () => {
     updateProject(id, 'tags', tags);
   };
 
+  // Certificate Management
+  const addCertificate = () => {
+    const newCert: Certificate = {
+      id: Date.now().toString(),
+      title: 'New Certificate',
+      issuer: 'Issuer Name',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      description: ['Description point 1'],
+      imageUrl: ''
+    };
+    setLocalContent(prev => ({
+      ...prev,
+      certificates: [newCert, ...prev.certificates]
+    }));
+    toast.info('New certificate added.');
+  };
+
+  const removeCertificate = (id: string) => {
+    if (confirm('Delete this certificate?')) {
+      setLocalContent(prev => ({
+        ...prev,
+        certificates: prev.certificates.filter(c => c.id !== id)
+      }));
+    }
+  };
+
+  const updateCertificate = (id: string, field: keyof Certificate, value: any) => {
+    setLocalContent(prev => ({
+      ...prev,
+      certificates: prev.certificates.map(c => c.id === id ? { ...c, [field]: value } : c)
+    }));
+  };
+
+  const updateCertificateDescription = (id: string, text: string) => {
+    // Split by lines for array
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    updateCertificate(id, 'description', lines);
+  };
+
   if (!isAdmin) return null;
 
   return (
@@ -225,9 +297,10 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="about" className="space-y-6">
-          <TabsList className="bg-muted/50 p-1">
+          <TabsList className="bg-muted/50 p-1 w-full md:w-auto overflow-x-auto">
             <TabsTrigger value="about" className="data-[state=active]:bg-background">About Me</TabsTrigger>
             <TabsTrigger value="projects" className="data-[state=active]:bg-background">Projects</TabsTrigger>
+            <TabsTrigger value="certificates" className="data-[state=active]:bg-background">Certificates</TabsTrigger>
             <TabsTrigger value="contact" className="data-[state=active]:bg-background">Contact</TabsTrigger>
           </TabsList>
 
@@ -411,6 +484,99 @@ const AdminDashboard = () => {
                 ))}
             </div>
           </TabsContent>
+
+          {/* CERTIFICATES TAB */}
+          <TabsContent value="certificates" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Certificates & Awards</h2>
+                <p className="text-muted-foreground">Manage your certifications</p>
+              </div>
+              <Button onClick={addCertificate}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Certificate
+              </Button>
+            </div>
+
+            <div className="grid gap-6">
+              {localContent.certificates.map((cert) => (
+                <Card key={cert.id} className="relative group overflow-hidden">
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <Button variant="destructive" size="icon" onClick={() => removeCertificate(cert.id)}>
+                      <Trash className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Image Section */}
+                      <div className="w-full md:w-48 shrink-0 space-y-3">
+                        <div className="aspect-square rounded-xl bg-muted border-2 border-dashed flex items-center justify-center overflow-hidden relative group/image">
+                          {cert.imageUrl ? (
+                            <img src={cert.imageUrl} alt={cert.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <Award className="w-12 h-12 text-muted-foreground/50" />
+                          )}
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity cursor-pointer" onClick={() => triggerCertImageUpload(cert.id)}>
+                            <Image className="w-6 h-6 text-white" />
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => triggerCertImageUpload(cert.id)}>
+                          Upload Image
+                        </Button>
+                      </div>
+
+                      {/* Details Section */}
+                      <div className="flex-1 space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Certificate Title</Label>
+                            <Input
+                              value={cert.title}
+                              onChange={(e) => updateCertificate(cert.id, 'title', e.target.value)}
+                              className="font-bold"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Issuing Organization</Label>
+                            <Input
+                              value={cert.issuer}
+                              onChange={(e) => updateCertificate(cert.id, 'issuer', e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Date Issued</Label>
+                          <Input
+                            value={cert.date}
+                            onChange={(e) => updateCertificate(cert.id, 'date', e.target.value)}
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Description (One point per line)</Label>
+                          <Textarea
+                            value={cert.description.join('\n')}
+                            onChange={(e) => updateCertificateDescription(cert.id, e.target.value)}
+                            rows={4}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            {/* Hidden Input for Cert Image */}
+            <input
+              ref={certFileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCertImageSelect}
+            />
+          </TabsContent>
+
 
           {/* CONTACT TAB */}
           <TabsContent value="contact" className="space-y-6">

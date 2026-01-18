@@ -1,51 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Certificate, GraduationCap, SealCheck, Cloud } from '@phosphor-icons/react';
+import { Certificate, GraduationCap } from '@phosphor-icons/react';
+import { useAdmin } from '@/contexts/AdminContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const certificates = [
-    {
-        title: 'GENAI JOB SIMULATION',
-        issuer: 'FORAGE (BOSTON CONSULTING GROUP)',
-        date: 'DEC 2025',
-        description: [
-            'Built an AI-powered financial chatbot using Python.',
-            'Analyzed and interpreted data from 10-K and 10-Q financial reports.'
-        ],
-        icon: Certificate,
-        gradient: 'from-neon-blue to-neon-cyan',
-    },
-    {
-        title: 'GOOGLE CLOUD ARCADE TROOPER',
-        issuer: 'GOOGLE CLOUD',
-        date: 'JUN 2025',
-        description: [
-            'Achieved Trooper Tier in the Google Cloud Arcade Summer Batch (APR - JUN) 2025.',
-            'Gained hands-on experience with BigQuery, Kubernetes, and AI/ML tools on GCP.',
-            'Completed various labs, trivia challenges, and skill badges in the Google Cloud ecosystem.'
-        ],
-        icon: Cloud,
-        gradient: 'from-neon-cyan to-neon-blue',
-    },
-    {
-        title: 'SALESFORCE AGENTBLAZE CHAMPIONS BADGE',
-        issuer: 'SALESFORCE',
-        date: 'JUN 2025',
-        description: [
-            'Confidently explain Agentforce concepts and their business impact.',
-            'Gain foundational knowledge of agent technology.',
-            'Build an AI-powered agent.',
-            'Identify real-world use cases for intelligent agent deployment.'
-        ],
-        icon: SealCheck,
-        gradient: 'from-neon-pink to-neon-violet',
-    }
-];
+
 
 const CertificatesSection = () => {
     const sectionRef = useRef<HTMLElement>(null);
+    const { siteContent } = useAdmin();
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -102,38 +67,50 @@ const CertificatesSection = () => {
                 </div>
 
                 <div className="max-w-4xl mx-auto">
-                    {certificates.map((cert, index) => {
-                        const Icon = cert.icon;
-                        return (
-                            <div key={index} className="certificate-card glass p-8 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center md:items-start border border-white/10 transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:-translate-y-1">
-                                <div className={`w-20 h-20 shrink-0 rounded-2xl bg-gradient-to-br ${cert.gradient} p-4 flex items-center justify-center`}>
-                                    <Icon size={40} weight="light" className="text-white" />
-                                </div>
-
-                                <div className="flex-grow text-center md:text-left">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-foreground mb-1 uppercase">{cert.title}</h3>
-                                            <p className="text-primary font-medium flex items-center justify-center md:justify-start gap-2">
-                                                <GraduationCap size={20} />
-                                                {cert.issuer}
-                                            </p>
-                                        </div>
-                                        <span className="text-muted-foreground font-mono">{cert.date}</span>
-                                    </div>
-
-                                    <ul className="space-y-3 text-muted-foreground text-left">
-                                        {cert.description.map((item, i) => (
-                                            <li key={i} className="flex items-start gap-3">
-                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                                                <span>{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                    {siteContent.certificates.map((cert) => (
+                        <div key={cert.id} className="certificate-card glass p-8 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center md:items-start border border-white/10 transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] hover:-translate-y-1">
+                            {/* Certificate Image or Fallback Icon */}
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 rounded-2xl overflow-hidden bg-muted/50 border border-white/10 flex items-center justify-center">
+                                {cert.imageUrl ? (
+                                    <img
+                                        src={cert.imageUrl}
+                                        alt={cert.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <Certificate size={40} weight="light" className="text-primary/50" />
+                                )}
                             </div>
-                        );
-                    })}
+
+                            <div className="flex-grow text-center md:text-left">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-foreground mb-1 uppercase">{cert.title}</h3>
+                                        <p className="text-primary font-medium flex items-center justify-center md:justify-start gap-2">
+                                            <GraduationCap size={20} />
+                                            {cert.issuer}
+                                        </p>
+                                    </div>
+                                    <span className="text-muted-foreground font-mono">{cert.date}</span>
+                                </div>
+
+                                <ul className="space-y-3 text-muted-foreground text-left">
+                                    {cert.description.map((item, i) => (
+                                        <li key={i} className="flex items-start gap-3">
+                                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    ))}
+
+                    {siteContent.certificates.length === 0 && (
+                        <div className="text-center text-muted-foreground">
+                            No certificates to display.
+                        </div>
+                    )}
                 </div>
             </div>
         </section>
