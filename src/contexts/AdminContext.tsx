@@ -45,7 +45,7 @@ interface AdminContextType {
 const defaultContent: SiteContent = {
   about: {
     title: 'About Me',
-    description: "I'm an aspiring AI/ML Engineer passionate about building intelligent systems that solve real-world problems.\nWith a strong foundation in machine learning, deep learning, and data science, I enjoy exploring cutting-edge technologies and transforming complex data into actionable insights.\n\nMy journey involves working with neural networks, natural language processing, computer vision, and IoT systems.\nI believe in continuous learning and pushing the boundaries of what's possible with AI.",
+    description: "I'm an aspiring AI/ML Engineer passionate about building intelligent systems that solve real-world problems.\nWith a strong foundation in machine learning, deep learning, and data science, I enjoy exploring cutting-edge technologies and transforming complex data into actionable insights.\n\n📚 **Education**\n**INSTITUTE OF TECHNICAL EDUCATION AND RESEARCH, SOA UNIVERSITY** (2023 - 2027 expected)\n*Bachelor of Technology in Computer Science with specialization in AI & ML*\n**Cumulative GPA:** 8.45/10.0 (Upto 4th sem)\n**Relevant Coursework:** DSA in JAVA; Machine Learning; Deep Learning; Algorithm Analysis; Artificial Intelligence\n\nMy journey involves working with neural networks, natural language processing, computer vision, and IoT systems.\nI believe in continuous learning and pushing the boundaries of what's possible with AI.",
     profileImage: null,
   },
   projects: [

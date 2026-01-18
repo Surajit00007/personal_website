@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Code, Brain, Database, ChartLine, Eye, Coffee, Terminal, GitBranch, Cpu, PaintBrush, Palette, Gear } from '@phosphor-icons/react';
+import { Code, Brain, Database, ChartLine, Eye, Coffee, Terminal, GitBranch, Cpu, PaintBrush, Palette, Gear, GraduationCap } from '@phosphor-icons/react';
 import profileImage from '@/assets/profile.jpg';
 import { useAdmin } from '@/contexts/AdminContext';
 
@@ -176,6 +176,39 @@ const AboutSection = () => {
           </h2>
           <div className="text-muted-foreground text-lg leading-relaxed mb-8 whitespace-pre-line">
             {siteContent.about.description}
+          </div>
+
+          {/* Education Section */}
+          <div className="mb-10 p-6 rounded-2xl bg-primary/5 border border-primary/10 glass-card">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <GraduationCap size={24} weight="fill" className="text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground">Education</h3>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-bold text-foreground leading-tight">INSTITUTE OF TECHNICAL EDUCATION AND RESEARCH, SOA UNIVERSITY</h4>
+                <p className="text-primary text-sm font-medium mb-1">(2023 - 2027 expected)</p>
+                <p className="text-muted-foreground italic">Bachelor of Technology in Computer Science with specialization in AI & ML</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-xs font-bold border border-accent/20">
+                    GPA: 8.45/10.0
+                  </span>
+                  <span className="text-xs text-muted-foreground">(Upto 4th sem)</span>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-primary/5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Relevant Coursework</p>
+                <div className="flex flex-wrap gap-2">
+                  {['DSA in JAVA', 'Machine Learning', 'Deep Learning', 'Algorithm Analysis', 'Artificial Intelligence'].map((course) => (
+                    <span key={course} className="text-xs px-2 py-1 bg-background/50 rounded-md border border-primary/5">
+                      {course}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Skills Grid */}
