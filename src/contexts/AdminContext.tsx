@@ -57,7 +57,7 @@ interface AdminContextType {
 const defaultContent: SiteContent = {
   about: {
     title: 'About Me',
-    description: "I'm an aspiring AI/ML Engineer passionate about building intelligent systems that solve real-world problems.\nWith a strong foundation in machine learning, deep learning, and data science, I enjoy exploring cutting-edge technologies and transforming complex data into actionable insights.\n\n📚 **Education**\n**INSTITUTE OF TECHNICAL EDUCATION AND RESEARCH, SOA UNIVERSITY** (2023 - 2027 expected)\n*Bachelor of Technology in Computer Science with specialization in AI & ML*\n**Cumulative GPA:** 8.45/10.0 (Upto 4th sem)\n**Relevant Coursework:** DSA in JAVA; Machine Learning; Deep Learning; Algorithm Analysis; Artificial Intelligence\n\nMy journey involves working with neural networks, natural language processing, computer vision, and IoT systems.\nI believe in continuous learning and pushing the boundaries of what's possible with AI.",
+    description: "I'm an aspiring AI/ML Engineer passionate about building intelligent systems that solve real-world problems. With a strong foundation in machine learning and deep learning, I enjoy building industry-level technologies and transforming complex data into actionable insights.\n\nMy journey involves working with neural networks, natural language processing, computer vision, and IoT systems. I believe in continuous learning and pushing the boundaries of what's possible with AI.",
     profileImage: null,
   },
   projects: [
@@ -118,6 +118,16 @@ const defaultContent: SiteContent = {
       description: 'Implemented a centralised file-sharing network with dynamic IP allocation using DHCP and secure FTP-based file transfer across multiple departmental subnets, connected via static routing and DHCP relay in Cisco Packet Tracer.',
       tags: ['DHCP', 'FTP', 'Static Routing', 'Subnetting', 'Networking'],
       category: 'ACADEMIC',
+    },
+    {
+      id: '7',
+      title: 'LOCAL DROP',
+      subtitle: 'Peer-to-Peer File Transfer App',
+      date: 'Feb 2026',
+      description: 'Developed a robust peer-to-peer file sharing application using WebRTC, designed to work seamlessly across mobile hotspots and various network topologies. Implemented reliable ICE candidate handling and connection fallback mechanisms to ensure stable and fast file transfers.',
+      tags: ['WebRTC', 'Networking', 'Android', 'File Transfer'],
+      github: 'https://github.com/Surajit00007',
+      category: 'PERSONAL',
     }
   ],
   certificates: [
@@ -130,7 +140,7 @@ const defaultContent: SiteContent = {
         'Built an AI-powered financial chatbot using Python.',
         'Analyzed and interpreted data from 10-K and 10-Q financial reports.'
       ],
-      imageUrl: '',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Boston_Consulting_Group_2020_logo.svg/512px-Boston_Consulting_Group_2020_logo.svg.png',
       linkedinUrl: '',
     },
     {
@@ -143,7 +153,7 @@ const defaultContent: SiteContent = {
         'Gained hands-on experience with BigQuery, Kubernetes, and AI/ML tools on GCP.',
         'Completed various labs, trivia challenges, and skill badges in the Google Cloud ecosystem.'
       ],
-      imageUrl: '',
+      imageUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg',
       linkedinUrl: '',
     },
     {
@@ -157,7 +167,7 @@ const defaultContent: SiteContent = {
         'Build an AI-powered agent.',
         'Identify real-world use cases for intelligent agent deployment.'
       ],
-      imageUrl: '',
+      imageUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/salesforce/salesforce-original.svg',
       linkedinUrl: '',
     }
   ],
@@ -187,10 +197,8 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       try {
         setIsLoading(true);
         console.log('Using hardcoded content to avoid Supabase free tier pause...');
-        
+
         // TEMPORARILY DISABLED: 
-        // We comment out the initial fetch so the application loads instantly
-        // using the hardcoded defaultContent. Supabase continues to be used 
         // for updates (Admin Panel) and image uploads.
         /*
         const [settingsRes, projectsRes, certificatesRes] = await Promise.all([
@@ -227,7 +235,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
         setSiteContent(newContent);
         */
-        
+
         // Use hardcoded values explicitly
         setSiteContent(defaultContent);
       } catch (error) {
