@@ -7,6 +7,7 @@ import ProjectsSection from '@/components/ProjectsSection';
 import CertificatesSection from '@/components/CertificatesSection';
 import ContactSection from '@/components/ContactSection';
 import Footer from '@/components/Footer';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +44,7 @@ const Index = () => {
         className={`transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'
           }`}
       >
+        <AnimatedBackground className="fixed inset-0 z-0 opacity-40 pointer-events-none" />
         <Navigation />
         <main>
           <HeroSection />

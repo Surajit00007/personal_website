@@ -71,9 +71,6 @@ const HeroSection = () => {
       <div className="hero-orb orb orb-violet w-[500px] h-[500px] -bottom-32 -left-32 opacity-20" />
       <div className="hero-orb orb orb-pink w-[300px] h-[300px] top-1/3 left-1/4 opacity-10" />
 
-      {/* Three.js Animated Background */}
-      <AnimatedBackground className="z-0 opacity-60" />
-
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
         <h1 ref={headlineRef} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-tight mb-6">
@@ -97,12 +94,6 @@ const HeroSection = () => {
       }} className="btn-neon inline-block">
           Contact Me
         </a>
-
-        {/* Scroll indicator */}
-        <button onClick={scrollToAbout} className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-          <span className="text-sm tracking-widest uppercase">Scroll</span>
-          <ArrowDown size={24} weight="light" />
-        </button>
       </div>
     </section>;
 };
