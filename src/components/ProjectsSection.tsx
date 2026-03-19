@@ -26,48 +26,55 @@ const ProjectCard = ({ project, index }: { project: any, index: number }) => {
   else if (project.title.toLowerCase().includes('finance') || project.title.toLowerCase().includes('tracker')) Icon = ChartPie;
 
   return (
-    <div className="project-card-wrapper h-full">
-      <div className="project-card h-full flex flex-col">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} p-3 flex items-center justify-center`}>
-            <Icon size={32} weight="light" className="text-white" />
+    <div className="project-card-wrapper w-full mb-8">
+      <div className="project-card flex flex-col md:flex-row gap-6 p-6 md:p-8 items-start">
+        {/* Left Side: Icon & Date */}
+        <div className="flex flex-col items-center gap-4 shrink-0 w-full md:w-auto">
+          <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${gradient} p-5 flex items-center justify-center shadow-lg`}>
+            <Icon size={40} weight="light" className="text-white" />
           </div>
-          <span className="text-sm text-muted-foreground">{project.date}</span>
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest">{project.date}</span>
         </div>
 
-        {/* Content */}
-        <h3 className="text-xl font-bold text-foreground mb-1 uppercase tracking-tight">{project.title}</h3>
-        <p className="text-sm text-primary mb-3">{project.subtitle}</p>
-        <p className="text-muted-foreground text-sm leading-relaxed flex-grow mb-4">
-          {project.description}
-        </p>
+        {/* Right Side: Content */}
+        <div className="flex-grow">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 className="text-2xl font-bold text-foreground uppercase tracking-tight">{project.title}</h3>
+              <p className="text-primary font-medium">{project.subtitle}</p>
+            </div>
+            
+            {/* GitHub Link */}
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group bg-muted/50 px-4 py-2 rounded-xl border border-white/5"
+              >
+                <GithubLogo size={20} weight="light" />
+                <span className="hidden sm:inline">GitHub</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </a>
+            )}
+          </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tags.map((tag: string) => (
-            <span
-              key={tag}
-              className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
+          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-6 max-w-3xl">
+            {project.description}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag: string) => (
+              <span
+                key={tag}
+                className="px-3 py-1 text-xs font-semibold rounded-lg bg-primary/10 text-primary border border-primary/10"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
-
-        {/* GitHub Link */}
-        {project.github && (
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
-          >
-            <GithubLogo size={20} weight="light" />
-            <span>View on GitHub</span>
-            <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-        )}
       </div>
     </div>
   );
@@ -123,18 +130,18 @@ const ProjectsSection = () => {
           card as HTMLElement,
           {
             opacity: 0,
-            y: 50,
-            scale: 0.95,
+            y: 30,
+            scale: 0.98,
           },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.8,
-            ease: 'power3.out',
+            duration: 0.6,
+            ease: 'power2.out',
             scrollTrigger: {
               trigger: card as HTMLElement,
-              start: 'top 85%',
+              start: 'top 90%',
               toggleActions: 'play none none reverse',
             },
           }
@@ -163,11 +170,11 @@ const ProjectsSection = () => {
 
         {/* Academic Projects Category */}
         <div className="mb-20">
-          <h3 className="category-header text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
-            <span className="w-8 h-px bg-primary"></span>
+          <h3 className="category-header text-xl md:text-2xl font-bold mb-10 flex items-center gap-3">
+            <span className="w-12 h-px bg-primary"></span>
             ACADEMIC PROJECTS
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col max-w-5xl mx-auto">
             {academicProjects.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index} />
             ))}
@@ -176,11 +183,11 @@ const ProjectsSection = () => {
 
         {/* Personal Projects Category */}
         <div>
-          <h3 className="category-header text-xl md:text-2xl font-bold mb-8 flex items-center gap-3">
-            <span className="w-8 h-px bg-primary"></span>
+          <h3 className="category-header text-xl md:text-2xl font-bold mb-10 flex items-center gap-3">
+            <span className="w-12 h-px bg-primary"></span>
             PERSONAL PROJECTS
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col max-w-5xl mx-auto">
             {personalProjects.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index + academicProjects.length} />
             ))}
