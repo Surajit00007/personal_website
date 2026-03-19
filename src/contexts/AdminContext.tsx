@@ -68,7 +68,7 @@ const defaultContent: SiteContent = {
       date: 'May 2025',
       description: 'Built an intelligent conversational chatbot using transformer models trained on Cornell Movie Dialogs datasets, enabling human-like responses through contextual understanding and self-attention mechanisms. Fine-tuned the model for relevance, tone consistency, and response quality using techniques like beam search and sampling.',
       tags: ['Transformers', 'NLP', 'Python'],
-      github: 'https://github.com/Surajit00007',
+      github: 'https://github.com/Surajit00007/Intelligent_Chatbot_Development-project',
       category: 'ACADEMIC',
     },
     {
@@ -78,6 +78,7 @@ const defaultContent: SiteContent = {
       date: 'DEC 2025',
       description: 'Built an intelligent prediction system using deep learning. Performed rigorous EDA, feature engineering (lags, rolling statistics, seasonality encoding) and time-aware train–test splitting, achieving improved forecasting accuracy measured via RMSE, MAE, R², and MAPE.',
       tags: ['Deep Learning', 'EDA', 'Forecasting'],
+      github: 'https://github.com/Surajit00007/Agricultural_Price_Prediction_using_DL',
       category: 'ACADEMIC',
     },
     {
@@ -97,7 +98,7 @@ const defaultContent: SiteContent = {
       date: 'March 2025',
       description: 'Developed Swallet, a personal finance tracking app using Streamlit, enabling users to log income and expenses in INR with intuitive UI and date selection via Google Calendar integration. Implemented data visualization using pie charts and graphs for spending insights; ensured local CSV-based storage to maintain user privacy.',
       tags: ['Streamlit', 'Data Viz', 'Python'],
-      github: 'https://github.com/Surajit00007',
+      github: 'https://github.com/Surajit00007/Swallet',
       category: 'PERSONAL',
     },
     {
@@ -107,7 +108,7 @@ const defaultContent: SiteContent = {
       date: 'Jun 2024',
       description: 'Designed and implemented a microcontroller-based automatic room light system with a bidirectional counter using an infrared sensor and Arduino Uno, enabling lights to toggle based on human presence. Developed the control logic using Embedded C, integrated infrared relay switching, and documented the design with flowcharts.',
       tags: ['Arduino', 'IoT', 'Embedded C'],
-      github: 'https://github.com/Surajit00007',
+      github: 'https://github.com/Surajit00007/Automatic_Room_Light_System',
       category: 'PERSONAL',
     },
     {
@@ -117,6 +118,7 @@ const defaultContent: SiteContent = {
       date: 'JAN 2026',
       description: 'Implemented a centralised file-sharing network with dynamic IP allocation using DHCP and secure FTP-based file transfer across multiple departmental subnets, connected via static routing and DHCP relay in Cisco Packet Tracer.',
       tags: ['DHCP', 'FTP', 'Static Routing', 'Subnetting', 'Networking'],
+      github: 'https://github.com/Surajit00007/CN_project',
       category: 'ACADEMIC',
     },
     {
@@ -126,7 +128,7 @@ const defaultContent: SiteContent = {
       date: 'Feb 2026',
       description: 'Developed a robust peer-to-peer file sharing application using WebRTC, designed to work seamlessly across mobile hotspots and various network topologies. Implemented reliable ICE candidate handling and connection fallback mechanisms to ensure stable and fast file transfers.',
       tags: ['WebRTC', 'Networking', 'Android', 'File Transfer'],
-      github: 'https://github.com/Surajit00007',
+      github: 'https://github.com/Surajit00007/LocalDrop-fileshare',
       category: 'PERSONAL',
     }
   ],
