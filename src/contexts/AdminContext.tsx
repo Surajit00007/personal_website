@@ -140,7 +140,7 @@ const defaultContent: SiteContent = {
         'Built an AI-powered financial chatbot using Python.',
         'Analyzed and interpreted data from 10-K and 10-Q financial reports.'
       ],
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Boston_Consulting_Group_2020_logo.svg/512px-Boston_Consulting_Group_2020_logo.svg.png',
+      imageUrl: 'https://cdn.uconnectlabs.com/wp-content/uploads/sites/60/2025/12/ChatGPT-Image-Dec-1-2025-08_58_40-AM-480x480.png',
       linkedinUrl: '',
     },
     {
