@@ -186,8 +186,13 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     const fetchContent = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching content from Supabase...');
-
+        console.log('Using hardcoded content to avoid Supabase free tier pause...');
+        
+        // TEMPORARILY DISABLED: 
+        // We comment out the initial fetch so the application loads instantly
+        // using the hardcoded defaultContent. Supabase continues to be used 
+        // for updates (Admin Panel) and image uploads.
+        /*
         const [settingsRes, projectsRes, certificatesRes] = await Promise.all([
           supabase.from('site_settings').select('*').eq('id', 'global').single(),
           supabase.from('projects').select('*').order('created_at', { ascending: false }),
@@ -221,9 +226,13 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         };
 
         setSiteContent(newContent);
+        */
+        
+        // Use hardcoded values explicitly
+        setSiteContent(defaultContent);
       } catch (error) {
         console.error('Unexpected error fetching content:', error);
-        toast.error('Failed to load content from server. Using local defaults.');
+        // toast.error('Failed to load content from server. Using local defaults.');
       } finally {
         setIsLoading(false);
       }
