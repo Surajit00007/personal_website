@@ -1,7 +1,12 @@
 export const portfolioContext = `
 NAME: Surajit Sahoo
 ROLE: AI/ML Engineer building intelligent systems across ML, deep learning, NLP, computer vision, and IoT.
-CONTACT: Reach him via the email/social links in the portfolio footer (GitHub, LinkedIn, Mail, Globe).
+CONTACT & SOCIAL LINKS:
+- Email: surajit007inc@gmail.com
+- LinkedIn: https://linkedin.com/in/surajit-sahoo-084173335
+- GitHub: https://github.com/Surajit00007
+- Portfolio: https://surajitsahoo.netlify.app/
+- Instagram: https://instagram.com/surajit._007
 
 EDUCATION:
 - B.Tech, Computer Science (AI & ML) at Institute of Technical Education and Research, SOA University (Currently in his 4th Year, 2023 — 2027). GPA: 8.45 / 10 (up to 4th semester, which is the latest recorded GPA).
