@@ -1,0 +1,150 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+}
+
+:root {
+  --background: #0f1a16;
+  --foreground: #e6f2dd;
+  --surface: #1a2e28;
+  --muted: #2d4a42;
+  --muted-foreground: #88bda4;
+  --border: rgba(177, 211, 185, 0.15);
+  --input: rgba(177, 211, 185, 0.15);
+  --accent: #b1d3b9;
+  --accent-glow: #88bda4;
+  --primary: #659287;
+  --primary-foreground: #e6f2dd;
+
+  --nav-bg: #e6f2dd;
+  --nav-border: rgba(101, 146, 135, 0.2);
+  --nav-c1: #0f1a16;
+  --nav-c2: #1a2e28;
+  --nav-c3: #2d4a42;
+  --nav-c4: #3a5c50;
+  --nav-c5: #659287;
+
+  --card-from: #e6f2dd;
+  --card-to: #b1d3b9;
+  --card-hover-to: #88bda4;
+  --card-fg: #0f1a16;
+  --card-fg-soft: #1a2e28;
+  --card-accent: #659287;
+
+}
+
+[data-theme="dusk"] {
+  --background: #1a0f1e;
+  --foreground: #F8F4E9;
+  --surface: #2a1a30;
+  --muted: #3d2a44;
+  --muted-foreground: #F6DBC0;
+  --border: rgba(246, 219, 192, 0.18);
+  --input: rgba(246, 219, 192, 0.18);
+  --accent: #F6DBC0;
+  --accent-glow: #935073;
+  --primary: #935073;
+  --primary-foreground: #F8F4E9;
+
+  --nav-bg: #F8F4E9;
+  --nav-border: rgba(147, 80, 115, 0.2);
+  --nav-c1: #1a0f1e;
+  --nav-c2: #2a1a30;
+  --nav-c3: #3d2a44;
+  --nav-c4: #502d55;
+  --nav-c5: #935073;
+
+  --card-from: #F8F4E9;
+  --card-to: #F6DBC0;
+  --card-hover-to: #935073;
+  --card-fg: #1a0f1e;
+  --card-fg-soft: #502D55;
+  --card-accent: #935073;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--background); }
+}
+
+@utility font-display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.04em; }
+@utility font-mono { font-family: var(--font-mono); }
+
+@utility glass {
+  background: color-mix(in oklch, var(--surface) 50%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--border);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 40px color-mix(in oklch, var(--accent-glow) 50%, transparent);
+}
+
+@utility grain {
+  position: relative;
+}
+@utility grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(5%, -3%) scale(1.05); }
+  66% { transform: translate(-3%, 4%) scale(0.98); }
+}
+@utility animate-drift { animation: drift 24s ease-in-out infinite; }
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+@utility animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+@utility animate-scan { animation: scan 8s linear infinite; }
+
+@keyframes gridScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 80px; }
+}
+@keyframes gridScrollReverse {
+  0% { background-position: 0 80px; }
+  100% { background-position: 0 0; }
+}
