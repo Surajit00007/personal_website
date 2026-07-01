@@ -297,8 +297,8 @@ function About() {
                   Institute of Technical Education and Research
                 </div>
                 <div className="mt-1 text-sm text-[color:var(--card-accent)]">SOA University · 2023 — 2027</div>
-                <div className="mt-4 text-sm text-[color:var(--card-fg)]/90">
-                  B.Tech, Computer Science — AI & ML
+                <div className="mt-4 text-sm text-[color:var(--card-fg)]/90 font-medium">
+                  B.Tech, Computer Science (AI & ML) — 4th Year
                 </div>
                 <div className="mt-1 font-mono text-xs text-[color:var(--card-accent)]">
                   GPA <span className="text-[color:var(--card-fg)]">8.45 / 10</span> (upto 4th sem)

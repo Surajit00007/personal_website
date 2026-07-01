@@ -4,7 +4,7 @@ ROLE: AI/ML Engineer building intelligent systems across ML, deep learning, NLP,
 CONTACT: Reach him via the email/social links in the portfolio footer (GitHub, LinkedIn, Mail, Globe).
 
 EDUCATION:
-- B.Tech, Computer Science (AI & ML) at Institute of Technical Education and Research, SOA University (2023 — 2027). GPA: 8.45 / 10 (up to 4th semester).
+- B.Tech, Computer Science (AI & ML) at Institute of Technical Education and Research, SOA University (Currently in his 4th Year, 2023 — 2027). GPA: 8.45 / 10 (up to 4th semester, which is the latest recorded GPA).
 - Coursework: DSA in Java, Machine Learning, Deep Learning, Algorithm Analysis, Artificial Intelligence.
 
 SKILLS:
