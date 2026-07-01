@@ -107,7 +107,7 @@ export const Route = createFileRoute("/api/chat")({
 
           if (!lovableKey && !groqKey && !geminiKey) {
             return Response.json(
-              { error: "Missing API Key. Please create a .env file inside the 'new/' folder and set GROQ_API_KEY=your_key to run the chatbot locally." },
+              { error: "No API key configured. Set GROQ_API_KEY in Netlify environment variables (Site settings → Environment variables)." },
               { status: 500 }
             );
           }
