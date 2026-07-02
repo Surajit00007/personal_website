@@ -6,15 +6,15 @@ import { GridBackground } from "./GridBackground";
 import { SuraWidget } from "./SuraWidget";
 import { SideNav } from "./SideNav";
 import { Reveal } from "./Reveal";
-import portrait from "@/assets/portrait.jpg";
-import bgTex from "@/assets/bg-texture.jpg";
-import networkSharing from "@/assets/network_sharing.png";
-import agriForecast from "@/assets/agri_forecast.png";
-import chatbotAgent from "@/assets/chatbot_agent.png";
-import webrtcFileshare from "@/assets/webrtc_fileshare.png";
-import localLlm from "@/assets/local_llm.png";
-import expenseTracker from "@/assets/expense_tracker.png";
-import smartLight from "@/assets/smart_light.png";
+import portrait from "@/assets/portrait.webp";
+import bgTex from "@/assets/bg-texture.webp";
+import networkSharing from "@/assets/network_sharing.webp";
+import agriForecast from "@/assets/agri_forecast.webp";
+import chatbotAgent from "@/assets/chatbot_agent.webp";
+import webrtcFileshare from "@/assets/webrtc_fileshare.webp";
+import localLlm from "@/assets/local_llm.webp";
+import expenseTracker from "@/assets/expense_tracker.webp";
+import smartLight from "@/assets/smart_light.webp";
 
 const skills = [
   "Python", "TensorFlow", "scikit-learn", "NumPy", "Pandas", "OpenCV",
