@@ -69,13 +69,16 @@ function useDecode(target: string, enabled: boolean) {
 function AssistantBubble({ content, animate, isError }: { content: string; animate: boolean; isError?: boolean }) {
   const decoded = useDecode(content, animate);
   return (
-    <div className="flex items-start gap-2">
-      <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] font-mono text-[10px] text-[var(--accent)]">
-        S·
-      </span>
-      <p className={`max-w-[85%] whitespace-pre-wrap text-sm leading-relaxed ${isError ? "text-red-400/90" : "text-[var(--foreground)]/90"}`}>
+    <div className="flex flex-col items-start gap-1">
+      <div className="flex items-center gap-1.5 pl-1">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)]">
+          SURA
+        </span>
+      </div>
+      <div className={`max-w-[85%] rounded-2xl rounded-tl-sm border border-[var(--border)] bg-[var(--surface)]/90 px-4 py-2.5 text-sm leading-relaxed ${isError ? "text-red-400/90" : "text-[var(--foreground)]/90"}`}>
         {decoded}
-      </p>
+      </div>
     </div>
   );
 }
