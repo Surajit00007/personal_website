@@ -78,7 +78,7 @@ export function SideNav() {
       </nav>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-[var(--border)] bg-[var(--background)]/70 px-5 py-3 backdrop-blur-2xl lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-[var(--border)] bg-[var(--background)]/80 px-4 py-2.5 backdrop-blur-2xl lg:hidden sm:px-5 sm:py-3">
         <ThemeToggle />
         <button
           onClick={() => setOpen((v) => !v)}

@@ -34,26 +34,26 @@ export function ThemeToggle() {
       title={isDusk ? "Violet Dusk" : "Sage"}
       className="relative inline-flex h-7 w-14 items-center rounded-full border transition-all duration-500"
       style={{
-        borderColor: isDusk ? "rgba(246,219,192,0.35)" : "rgba(101,146,135,0.35)",
+        borderColor: isDusk ? "rgba(200,195,188,0.4)" : "rgba(255,255,255,0.12)",
         background: isDusk
-          ? "linear-gradient(135deg, #502D55 0%, #935073 55%, #F6DBC0 100%)"
-          : "linear-gradient(135deg, #0f1a16 0%, #2d4a42 55%, #b1d3b9 100%)",
+          ? "linear-gradient(135deg, #1a1a18 0%, #c8c3bc 55%, #f5f0eb 100%)"
+          : "linear-gradient(135deg, #0d0d0d 0%, #3a3a3a 55%, #f2f2f0 100%)",
         boxShadow: isDusk
-          ? "0 0 14px rgba(147,80,115,0.55), inset 0 0 8px rgba(0,0,0,0.35)"
-          : "0 0 14px rgba(136,189,164,0.45), inset 0 0 8px rgba(0,0,0,0.35)",
+          ? "0 0 14px rgba(200,195,188,0.35), inset 0 0 8px rgba(0,0,0,0.2)"
+          : "0 0 14px rgba(255,255,255,0.15), inset 0 0 8px rgba(0,0,0,0.5)",
       }}
     >
       <span
         className="absolute top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-500"
         style={{
           left: isDusk ? "calc(100% - 1.375rem)" : "0.25rem",
-          background: isDusk ? "#F8F4E9" : "#e6f2dd",
-          boxShadow: `0 2px 8px rgba(0,0,0,0.45), 0 0 10px ${isDusk ? "#F6DBC0" : "#b1d3b9"}`,
+          background: isDusk ? "#1a1a18" : "#f2f2f0",
+          boxShadow: `0 2px 8px rgba(0,0,0,0.45), 0 0 10px ${isDusk ? "rgba(245,240,235,0.6)" : "rgba(242,242,240,0.4)"}`,
         }}
       >
         <span
           className="h-1.5 w-1.5 rounded-full"
-          style={{ background: isDusk ? "#502D55" : "#659287" }}
+          style={{ background: isDusk ? "#f5f0eb" : "#0d0d0d" }}
         />
       </span>
     </button>

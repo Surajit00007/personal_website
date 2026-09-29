@@ -103,6 +103,16 @@ export function SuraWidget() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  // Lock background scroll while chat is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
