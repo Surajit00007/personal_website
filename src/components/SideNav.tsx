@@ -39,7 +39,7 @@ export function SideNav() {
   return (
     <>
       {/* Desktop vertical nav */}
-      <nav className="fixed left-0 top-0 z-50 hidden h-screen w-20 flex-col items-center justify-evenly border-r border-[var(--nav-border)] bg-[var(--nav-bg)] lg:flex">
+      <nav aria-hidden className="fixed left-0 top-0 z-50 hidden h-screen w-20 flex-col items-center justify-evenly border-r border-[var(--nav-border)] bg-[var(--nav-bg)] lg:flex">
         {/* Theme toggle — treated as equal sibling for even distribution */}
         <ThemeToggle />
 
