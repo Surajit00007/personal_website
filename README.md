@@ -1,6 +1,6 @@
 # Surajit Sahoo — Personal Portfolio
 
-A glassmorphic personal portfolio website built with React, TypeScript, and Vite. Features an integrated AI chatbot (SURA) powered by Groq.
+A cinematic personal portfolio website built with React, TypeScript, Vite, and TailwindCSS v4. Features a dark monochrome macOS-card design theme and an integrated AI chatbot (SURA) powered by Groq.
 
 ## 📸 Screenshots
 
@@ -35,10 +35,91 @@ Open **[http://localhost:8080](http://localhost:8080)**
 
 ---
 
-## 📁 Structure
+## 📁 Project Structure
 
 ```
-├── src/               # New website source code
-├── public/            # Static assets, resume, screenshots
-└── Old website/       # Archived previous website
+personal_website/
+├── public/                        # Static assets served at root
+│   ├── highradius.png             # Company logos
+│   ├── samsung-prism.png
+│   ├── soa-flying.png
+│   ├── robot-face.png             # SURA chatbot icon
+│   ├── resume.pdf                 # Downloadable resume
+│   └── screenshots/               # README screenshots
+│
+├── src/
+│   ├── assets/                    # Bundled image assets (project screenshots etc.)
+│   │
+│   ├── components/
+│   │   ├── Portfolio.tsx          # Main page — renders all sections
+│   │   ├── SuraWidget.tsx         # SURA AI chat widget (floating button + panel)
+│   │   ├── SideNav.tsx            # Desktop vertical nav + mobile top bar
+│   │   ├── ThemeToggle.tsx        # Dark / light theme switcher
+│   │   ├── GridBackground.tsx     # Animated 3D grid background
+│   │   ├── Reveal.tsx             # Scroll-triggered reveal animation wrapper
+│   │   └── Loader.tsx             # Intro loader animation
+│   │
+│   ├── lib/
+│   │   ├── portfolio-data.ts      # ⭐ SINGLE SOURCE OF TRUTH
+│   │   │                          #    Edit THIS file to update:
+│   │   │                          #    • Website UI (cards, sections)
+│   │   │                          #    • SURA AI chatbot knowledge (auto-synced)
+│   │   │                          #    Contains: bio, skills, internships,
+│   │   │                          #    projects, certs
+│   │   │
+│   │   └── portfolio-context.ts   # Auto-generated from portfolio-data.ts
+│   │                              # Do NOT edit manually — it builds the
+│   │                              # SURA AI system prompt at runtime
+│   │
+│   ├── routes/
+│   │   ├── __root.tsx             # Root layout (fonts, global head tags)
+│   │   ├── index.tsx              # "/" route → renders Portfolio
+│   │   └── api/
+│   │       └── chat.ts            # Groq API server route for SURA AI
+│   │
+│   └── styles.css                 # Global CSS, theme variables, mac-card utilities
+│
+├── .env                           # GROQ_API_KEY (not committed)
+├── vite.config.ts
+└── package.json
 ```
+
+---
+
+## ✏️ How to Update Content
+
+**All portfolio content lives in one file:**
+
+```
+src/lib/portfolio-data.ts
+```
+
+| What to update | Where in the file |
+|---|---|
+| Add new internship | `internships` array — add at the **top** (most recent first) |
+| Add new project | `academicProjects` or `personalProjects` — add at the **top** |
+| Add new certificate | `certs` array — add at the **top** |
+| Update bio / links | `bio` object |
+| Update skills | `skills` array |
+
+> The SURA AI chatbot will automatically reflect your changes — no need to touch `portfolio-context.ts`.
+
+---
+
+## 🤖 SURA AI Chatbot
+
+SURA is a context-aware AI assistant that answers questions about Surajit's portfolio.
+
+- **Model:** `llama3-8b-8192` via [Groq](https://groq.com)
+- **Context:** Auto-built from `src/lib/portfolio-data.ts`
+- **Rate limiting:** 5 requests per 15 minutes (client-side)
+- **Mobile:** Adapts to visual viewport — keyboard-safe layout
+
+---
+
+## 🎨 Design System
+
+- **Theme:** Dark monochrome (`#0d0d0d` bg, `#f2f2f0` fg) with warm cream alternate
+- **Cards:** macOS browser chrome style with traffic-light controls
+- **Typography:** `DM Serif Display` (headings) + `Inter` (body) + `JetBrains Mono` (labels)
+- **Animations:** `motion/react` for scroll reveals, entrance transitions
