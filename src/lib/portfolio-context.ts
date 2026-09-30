@@ -14,12 +14,16 @@ EDUCATION:
 - Coursework: DSA in Java, Machine Learning, Deep Learning, Algorithm Analysis, Artificial Intelligence.
 
 SKILLS:
-Python, TensorFlow, scikit-learn, NumPy, Pandas, OpenCV, Java, C, Streamlit, HTML/CSS, JavaScript, Git, GitHub, MySQL, VS Code, Google Colab, Arduino IDE, Embedded C, Figma, Canva.
+Python, PyTorch, TensorFlow, scikit-learn, NumPy, Pandas, OpenCV, FastAPI, Java, C, Streamlit, HTML/CSS, JavaScript, Git, GitHub, MySQL, VS Code, Google Colab, Arduino IDE, Embedded C, Figma, Canva.
 
-INTERNSHIPS:
-1. Research Intern @ Samsung PRISM — Samsung R&D Institute India, Bangalore (Nov 2025 – Present, 9 mos, Remote):
-   Built a White Balance Enhancement System for RAW (DNG) images with multi-level control (5–10 levels) for adaptive colour correction from scratch. Developed an end-to-end pipeline from Raw image input to Enhanced image Output.
-2. Graphic Designer — Soa Flying Community (Mar 2024 – Apr 2026, 2 yrs 2 mos, Hybrid):
+INTERNSHIPS (listed most recent first):
+1. Consultant I Intern — Cash Application @ HighRadius Technologies, Hyderabad (Jul 2026 – Sep 2026, 3 mos, Onsite) — THIS IS HIS MOST RECENT AND LATEST WORK EXPERIENCE:
+   Gained hands-on exposure to Cash Application and Accounts Receivable processes within an enterprise Order-to-Cash environment. Worked with customer, invoice, payment, and remittance data; developed understanding of payment matching and exception-handling workflows. Applied SQL and database concepts to understand and work with structured enterprise data. Developed practical experience in business-process analysis, problem-solving, communication, and consulting workflows.
+
+2. AI/ML Research Intern @ Samsung PRISM — Samsung R&D Institute India (Sep 2025 – Feb 2026, 6 mos, Virtual):
+   Developed an AI-based RAW/DNG White Balance Enhancement System using PyTorch, MobileNetV3-Small, rawpy, and FastAPI for scene illuminant estimation and real-time colour correction. Implemented adaptive WB control using model prediction, Grey World estimation, and RAW (as-shot Neutral) metadata with 10 controllable enhancement levels.
+
+3. Graphic Designer — Soa Flying Community (Mar 2024 – Apr 2026, 2 yrs 2 mos, Hybrid):
    Created promotional graphics, event posters, and branding materials for the SOA Flying Community.
 
 ACADEMIC PROJECTS:
