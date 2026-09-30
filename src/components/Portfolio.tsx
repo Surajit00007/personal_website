@@ -144,7 +144,13 @@ export function Portfolio() {
         <Certificates />
         <Contact />
       </main>
-      <SuraWidget />
+
+      {/* Chatbot — fixed overlay, zero layout footprint */}
+      <div className="pointer-events-none fixed inset-0 z-50">
+        <div className="pointer-events-auto">
+          <SuraWidget />
+        </div>
+      </div>
     </div>
   );
 }
