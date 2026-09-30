@@ -90,6 +90,7 @@ export function SuraWidget() {
   const [loading, setLoading] = useState(false);
   const [firstIndex, setFirstIndex] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(MAX_REQUESTS);
+  const [vpHeight, setVpHeight] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -111,6 +112,30 @@ export function SuraWidget() {
       document.body.style.overflow = "";
     }
     return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  // Track visual viewport height so the panel shrinks when mobile keyboard opens
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      setVpHeight(vv.height);
+      // Scroll messages to bottom so the latest is always visible
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+      }, 50);
+    };
+    if (open) {
+      vv.addEventListener("resize", update);
+      vv.addEventListener("scroll", update);
+      update(); // set initial value
+    } else {
+      setVpHeight(null);
+    }
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -242,8 +267,12 @@ export function SuraWidget() {
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ type: "spring", damping: 24, stiffness: 260 }}
             className="fixed z-50 flex flex-col overflow-hidden border border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-2xl
-                       inset-x-0 bottom-0 top-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[600px] sm:max-h-[85vh] sm:w-[420px] sm:rounded-2xl"
-            style={{ boxShadow: "0 30px 80px -20px var(--accent-glow), 0 0 0 1px var(--border)" }}
+                       inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[600px] sm:max-h-[85vh] sm:w-[420px] sm:rounded-2xl"
+            style={{
+              boxShadow: "0 30px 80px -20px var(--accent-glow), 0 0 0 1px var(--border)" ,
+              // On mobile: shrink panel to visual viewport so keyboard doesn't hide input
+              ...(vpHeight != null ? { height: vpHeight, top: "auto" } : { top: 0 }),
+            }}
             role="dialog"
             aria-label="SURA chat"
           >
