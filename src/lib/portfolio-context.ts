@@ -1,46 +1,62 @@
-export const portfolioContext = `
-NAME: Surajit Sahoo
-ROLE: AI/ML Engineer building intelligent systems across ML, deep learning, NLP, computer vision, and IoT.
-CONTACT & SOCIAL LINKS:
-- Email: surajit007inc@gmail.com
-- LinkedIn: https://linkedin.com/in/surajit-sahoo-084173335
-- GitHub: https://github.com/Surajit00007
-- Portfolio: https://surajitsahoo.netlify.app/
-- Instagram: https://instagram.com/surajit._007
-- Resume / CV: Downloadable at https://surajitsahoo.netlify.app/resume.pdf
+// AUTO-GENERATED — do not edit manually.
+// Edit src/lib/portfolio-data.ts instead.
+// This context is fed to SURA AI as its system prompt.
 
-EDUCATION:
-- B.Tech, Computer Science (AI & ML) at Institute of Technical Education and Research, SOA University (Currently in his 4th Year, 2023 — 2027). GPA: 8.45 / 10 (up to 4th semester, which is the latest recorded GPA).
-- Coursework: DSA in Java, Machine Learning, Deep Learning, Algorithm Analysis, Artificial Intelligence.
+import { bio, skills, internships, academicProjects, personalProjects, certs } from "./portfolio-data";
 
-SKILLS:
-Python, PyTorch, TensorFlow, scikit-learn, NumPy, Pandas, OpenCV, FastAPI, Java, C, Streamlit, HTML/CSS, JavaScript, Git, GitHub, MySQL, VS Code, Google Colab, Arduino IDE, Embedded C, Figma, Canva.
+function buildContext(): string {
+  const lines: string[] = [];
 
-INTERNSHIPS (listed most recent first):
-1. Consultant I Intern — Cash Application @ HighRadius Technologies, Hyderabad (Jul 2026 – Sep 2026, 3 mos, Onsite) — THIS IS HIS MOST RECENT AND LATEST WORK EXPERIENCE:
-   Gained hands-on exposure to Cash Application and Accounts Receivable processes within an enterprise Order-to-Cash environment. Worked with customer, invoice, payment, and remittance data; developed understanding of payment matching and exception-handling workflows. Applied SQL and database concepts to understand and work with structured enterprise data. Developed practical experience in business-process analysis, problem-solving, communication, and consulting workflows.
+  lines.push(`NAME: ${bio.name}`);
+  lines.push(`ROLE: ${bio.role}`);
+  lines.push(`CONTACT & SOCIAL LINKS:`);
+  lines.push(`- Email: ${bio.email}`);
+  lines.push(`- LinkedIn: ${bio.linkedin}`);
+  lines.push(`- GitHub: ${bio.github}`);
+  lines.push(`- Portfolio: ${bio.portfolio}`);
+  lines.push(`- Instagram: ${bio.instagram}`);
+  lines.push(`- Resume / CV: Downloadable at ${bio.resume}`);
+  lines.push(``);
 
-2. AI/ML Research Intern @ Samsung PRISM — Samsung R&D Institute India (Sep 2025 – Feb 2026, 6 mos, Virtual):
-   Developed an AI-based RAW/DNG White Balance Enhancement System using PyTorch, MobileNetV3-Small, rawpy, and FastAPI for scene illuminant estimation and real-time colour correction. Implemented adaptive WB control using model prediction, Grey World estimation, and RAW (as-shot Neutral) metadata with 10 controllable enhancement levels.
+  lines.push(`EDUCATION:`);
+  lines.push(`- ${bio.education.degree} at ${bio.education.school} (${bio.education.year}). GPA: ${bio.education.gpa}.`);
+  lines.push(`- Coursework: ${bio.education.coursework.join(", ")}.`);
+  lines.push(``);
 
-3. Graphic Designer — Soa Flying Community (Mar 2024 – Apr 2026, 2 yrs 2 mos, Hybrid):
-   Created promotional graphics, event posters, and branding materials for the SOA Flying Community.
+  lines.push(`SKILLS:`);
+  lines.push(skills.join(", ") + ".");
+  lines.push(``);
 
-ACADEMIC PROJECTS:
-1. Intelligent Chatbot Development (May 2025) — Transformer-based AI chatbot trained on Cornell Movie Dialogs, fine-tuned with beam search and sampling for tone and relevance. Tech: Transformers, NLP, Python.
-2. Agricultural Commodity Price Prediction (Dec 2025) — Deep learning time-series forecasting with EDA, feature engineering (lags, rolling stats, seasonality), evaluated via RMSE/MAE/R²/MAPE.
-3. Centralised File-Sharing System with DHCP & FTP (Jan 2026) — Multi-subnet network in Cisco Packet Tracer with DHCP relay, static routing, and secure FTP transfer.
+  lines.push(`INTERNSHIPS (listed most recent first — the first entry is the LATEST work experience):`);
+  internships.forEach((intern, i) => {
+    const isLatest = i === 0 ? " ← MOST RECENT / LATEST WORK EXPERIENCE" : "";
+    lines.push(`${i + 1}. ${intern.role} @ ${intern.org} (${intern.period}, ${intern.duration}, ${intern.type})${isLatest}:`);
+    intern.points.forEach((pt) => lines.push(`   - ${pt}`));
+    if (i < internships.length - 1) lines.push(``);
+  });
+  lines.push(``);
 
-PERSONAL PROJECTS:
-1. Local AI Chatbot (Dec 2025) — Fully offline ChatGPT-like assistant using phi3, llama3, mistral via Ollama; Python + Streamlit with custom prompts and memory.
-2. Swallet App — Expense Tracker (March 2025) — Streamlit personal finance app in INR with pie charts, local CSV storage for privacy.
-3. Automatic Room Light System (Jun 2024) — Arduino Uno + IR sensor bidirectional counter written in Embedded C.
-4. Local Drop (Feb 2026) — WebRTC peer-to-peer file transfer that works across hotspots with ICE handling and fallback.
+  lines.push(`ACADEMIC PROJECTS:`);
+  academicProjects.forEach((p, i) => {
+    lines.push(`${i + 1}. ${p.title} (${p.date}) — ${p.desc} Tags: ${p.tags.join(", ")}.`);
+  });
+  lines.push(``);
 
-CERTIFICATIONS:
-- GenAI Job Simulation — Forage / BCG (Dec 2025): built an AI-powered financial chatbot in Python, analyzed 10-K and 10-Q reports.
-- Google Cloud Arcade Trooper — Google Cloud (Jun 2025): BigQuery, Kubernetes, AI/ML on GCP, labs and skill badges.
-- Salesforce Agentblaze Champions Badge — Salesforce (Jun 2025): Agentforce concepts, built an AI-powered agent.
+  lines.push(`PERSONAL PROJECTS:`);
+  personalProjects.forEach((p, i) => {
+    lines.push(`${i + 1}. ${p.title} (${p.date}) — ${p.desc} Tags: ${p.tags.join(", ")}.`);
+  });
+  lines.push(``);
 
-INTERESTS: AI, Machine Learning, Deep Learning, NLP, Computer Vision, IoT systems, and clean product design.
-`.trim();
+  lines.push(`CERTIFICATIONS:`);
+  certs.forEach((c) => {
+    lines.push(`- ${c.title} — ${c.issuer} (${c.date}): ${c.points.join("; ")}.`);
+  });
+  lines.push(``);
+
+  lines.push(`INTERESTS: ${bio.interests}`);
+
+  return lines.join("\n").trim();
+}
+
+export const portfolioContext = buildContext();
