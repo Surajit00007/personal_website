@@ -51,16 +51,6 @@ export const Route = createFileRoute("/api/portfolio")({
 
       POST: async ({ request }) => {
         try {
-          if (!isNeonConfigured()) {
-            return Response.json(
-              {
-                success: false,
-                error: "Neon database is not configured. Set DATABASE_URL in your environment.",
-              },
-              { status: 503 },
-            );
-          }
-
           const body = (await request.json()) as {
             action?: "verify_auth" | "seed" | "update_section" | "update_all";
             password?: string;
@@ -82,6 +72,16 @@ export const Route = createFileRoute("/api/portfolio")({
                 error: "Invalid credentials. Please enter the correct password.",
               },
               { status: 401 },
+            );
+          }
+
+          if (!isNeonConfigured()) {
+            return Response.json(
+              {
+                success: false,
+                error: "Neon database is not configured. Set DATABASE_URL in your environment.",
+              },
+              { status: 503 },
             );
           }
 
