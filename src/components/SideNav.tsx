@@ -22,7 +22,7 @@ export function SideNav() {
           if (e.isIntersecting) setActive(e.target.id);
         });
       },
-      { rootMargin: "-40% 0px -55% 0px" }
+      { rootMargin: "-40% 0px -55% 0px" },
     );
     items.forEach((i) => {
       const el = document.getElementById(i.id);
@@ -39,7 +39,10 @@ export function SideNav() {
   return (
     <>
       {/* Desktop vertical nav */}
-      <nav aria-hidden className="fixed left-0 top-0 z-50 hidden h-screen w-20 flex-col items-center justify-evenly border-r border-[var(--nav-border)] bg-[var(--nav-bg)] lg:flex">
+      <nav
+        aria-hidden
+        className="fixed left-0 top-0 z-50 hidden h-screen w-20 flex-col items-center justify-evenly border-r border-[var(--nav-border)] bg-[var(--nav-bg)] lg:flex"
+      >
         {/* Theme toggle — treated as equal sibling for even distribution */}
         <ThemeToggle />
 
@@ -85,7 +88,11 @@ export function SideNav() {
           className="flex h-10 w-10 items-center justify-center rounded-md text-[var(--foreground)] transition-colors hover:bg-[var(--foreground)]/10"
           aria-label={open ? "Close menu" : "Open menu"}
         >
-          {open ? <X className="h-5 w-5" strokeWidth={2} /> : <Menu className="h-5 w-5" strokeWidth={2} />}
+          {open ? (
+            <X className="h-5 w-5" strokeWidth={2} />
+          ) : (
+            <Menu className="h-5 w-5" strokeWidth={2} />
+          )}
         </button>
       </div>
 

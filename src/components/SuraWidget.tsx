@@ -44,9 +44,15 @@ function retryAfterSeconds(): number {
 function useDecode(target: string, enabled: boolean) {
   const [text, setText] = useState(enabled ? "" : target);
   useEffect(() => {
-    if (!enabled) { setText(target); return; }
+    if (!enabled) {
+      setText(target);
+      return;
+    }
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) { setText(target); return; }
+    if (reduced) {
+      setText(target);
+      return;
+    }
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ01#/*";
     let frame = 0;
     const total = 14;
@@ -56,17 +62,32 @@ function useDecode(target: string, enabled: boolean) {
       const revealed = Math.floor(target.length * progress);
       const scrambled = target
         .split("")
-        .map((c, i) => (i < revealed || c === " " || c === "\n" ? c : chars[Math.floor(Math.random() * chars.length)]))
+        .map((c, i) =>
+          i < revealed || c === " " || c === "\n"
+            ? c
+            : chars[Math.floor(Math.random() * chars.length)],
+        )
         .join("");
       setText(scrambled);
-      if (frame >= total) { setText(target); clearInterval(id); }
+      if (frame >= total) {
+        setText(target);
+        clearInterval(id);
+      }
     }, 22);
     return () => clearInterval(id);
   }, [target, enabled]);
   return text;
 }
 
-function AssistantBubble({ content, animate, isError }: { content: string; animate: boolean; isError?: boolean }) {
+function AssistantBubble({
+  content,
+  animate,
+  isError,
+}: {
+  content: string;
+  animate: boolean;
+  isError?: boolean;
+}) {
   const decoded = useDecode(content, animate);
   return (
     <div className="flex flex-col items-start gap-1">
@@ -76,7 +97,9 @@ function AssistantBubble({ content, animate, isError }: { content: string; anima
           SURA
         </span>
       </div>
-      <div className={`max-w-[85%] rounded-2xl rounded-tl-sm border border-[var(--border)] bg-[var(--surface)]/90 px-4 py-2.5 text-sm leading-relaxed ${isError ? "text-red-400/90" : "text-[var(--foreground)]/90"}`}>
+      <div
+        className={`max-w-[85%] rounded-2xl rounded-tl-sm border border-[var(--border)] bg-[var(--surface)]/90 px-4 py-2.5 text-sm leading-relaxed ${isError ? "text-red-400/90" : "text-[var(--foreground)]/90"}`}
+      >
         {decoded}
       </div>
     </div>
@@ -111,7 +134,9 @@ export function SuraWidget() {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   // Track visual viewport height so the panel shrinks when mobile keyboard opens
@@ -140,7 +165,9 @@ export function SuraWidget() {
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
@@ -151,9 +178,14 @@ export function SuraWidget() {
 
     // ── Client-side input length guard ───────────────────────────────────────
     if (trimmed.length > MAX_INPUT_CHARS) {
-      setMessages((m) => [...m,
+      setMessages((m) => [
+        ...m,
         { role: "user", content: trimmed },
-        { role: "assistant", isError: true, content: `Message too long (${trimmed.length}/${MAX_INPUT_CHARS} chars). Please keep your question shorter.` },
+        {
+          role: "assistant",
+          isError: true,
+          content: `Message too long (${trimmed.length}/${MAX_INPUT_CHARS} chars). Please keep your question shorter.`,
+        },
       ]);
       setInput("");
       return;
@@ -162,9 +194,14 @@ export function SuraWidget() {
     // ── Client-side rate limit guard ─────────────────────────────────────────
     if (clientIsRateLimited()) {
       const wait = retryAfterSeconds();
-      setMessages((m) => [...m,
+      setMessages((m) => [
+        ...m,
         { role: "user", content: trimmed },
-        { role: "assistant", isError: true, content: `You've reached the limit of ${MAX_REQUESTS} questions per 5 minutes. Try again in ~${wait}s, or reach Surajit directly via the contact links in the footer.` },
+        {
+          role: "assistant",
+          isError: true,
+          content: `You've reached the limit of ${MAX_REQUESTS} questions per 5 minutes. Try again in ~${wait}s, or reach Surajit directly via the contact links in the footer.`,
+        },
       ]);
       setInput("");
       return;
@@ -188,27 +225,39 @@ export function SuraWidget() {
 
       if (res.status === 429) {
         const wait = retryAfterSeconds();
-        throw new Error(`Rate limit reached. Please wait ~${wait}s before asking another question.`);
+        throw new Error(
+          `Rate limit reached. Please wait ~${wait}s before asking another question.`,
+        );
       }
       if (res.status === 413) {
-        throw new Error(`Your message is too long (max ${MAX_INPUT_CHARS} characters). Please shorten it.`);
+        throw new Error(
+          `Your message is too long (max ${MAX_INPUT_CHARS} characters). Please shorten it.`,
+        );
       }
       if (!res.ok) throw new Error(data?.error ?? "Request failed");
 
       setFirstIndex(next.length);
       setMessages([...next, { role: "assistant", content: data.text ?? "…" }]);
     } catch (err: any) {
-      setMessages([...next, {
-        role: "assistant",
-        isError: true,
-        content: err.message || "SURA is offline — reach Surajit directly via the contact links in the footer.",
-      }]);
+      setMessages([
+        ...next,
+        {
+          role: "assistant",
+          isError: true,
+          content:
+            err.message ||
+            "SURA is offline — reach Surajit directly via the contact links in the footer.",
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const onSubmit = (e: FormEvent) => { e.preventDefault(); send(input); };
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    send(input);
+  };
   const inputOverLimit = input.length > MAX_INPUT_CHARS;
   const rateLimitedOut = remaining === 0;
 
@@ -269,7 +318,7 @@ export function SuraWidget() {
             className="fixed z-50 flex flex-col overflow-hidden border border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-2xl
                        inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:h-[600px] sm:max-h-[85vh] sm:w-[420px] sm:rounded-2xl"
             style={{
-              boxShadow: "0 30px 80px -20px var(--accent-glow), 0 0 0 1px var(--border)" ,
+              boxShadow: "0 30px 80px -20px var(--accent-glow), 0 0 0 1px var(--border)",
               // On mobile: shrink panel to visual viewport so keyboard doesn't hide input
               ...(vpHeight != null ? { height: vpHeight, top: "auto" } : { top: 0 }),
             }}
@@ -278,9 +327,13 @@ export function SuraWidget() {
           >
             {/* Scanline */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/60 to-transparent" />
-            <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{
-              backgroundImage: "repeating-linear-gradient(0deg, var(--foreground) 0 1px, transparent 1px 3px)",
-            }} />
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.04]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(0deg, var(--foreground) 0 1px, transparent 1px 3px)",
+              }}
+            />
 
             {/* Header */}
             <div className="relative flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
@@ -290,12 +343,18 @@ export function SuraWidget() {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--accent)]" />
                 </span>
                 <div>
-                  <div className="font-display text-lg leading-none tracking-tight">SURA <span className="text-[var(--muted-foreground)]">/ AI</span></div>
-                  <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--muted-foreground)]">Online · Ready</div>
+                  <div className="font-display text-lg leading-none tracking-tight">
+                    SURA <span className="text-[var(--muted-foreground)]">/ AI</span>
+                  </div>
+                  <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--muted-foreground)]">
+                    Online · Ready
+                  </div>
                 </div>
               </div>
               {/* Rate limit badge */}
-              <div className={`mr-2 font-mono text-[10px] tabular-nums ${remaining <= 5 ? "text-red-400" : "text-[var(--muted-foreground)]"}`}>
+              <div
+                className={`mr-2 font-mono text-[10px] tabular-nums ${remaining <= 5 ? "text-red-400" : "text-[var(--muted-foreground)]"}`}
+              >
                 {remaining}/{MAX_REQUESTS} left
               </div>
               <button
@@ -332,35 +391,54 @@ export function SuraWidget() {
               {messages.map((m, i) =>
                 m.role === "user" ? (
                   <div key={i} className="flex justify-end">
-                    <div
-                      className="max-w-[85%] rounded-2xl rounded-br-sm border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-4 py-2 text-sm text-[var(--foreground)] backdrop-blur"
-                    >
+                    <div className="max-w-[85%] rounded-2xl rounded-br-sm border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-4 py-2 text-sm text-[var(--foreground)] backdrop-blur">
                       {m.content}
                     </div>
                   </div>
                 ) : (
-                  <AssistantBubble key={i} content={m.content} animate={firstIndex === i} isError={m.isError} />
-                )
+                  <AssistantBubble
+                    key={i}
+                    content={m.content}
+                    animate={firstIndex === i}
+                    isError={m.isError}
+                  />
+                ),
               )}
 
               {loading && (
                 <div className="flex items-center gap-2 pl-8">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" style={{ animationDelay: "0ms" }} />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" style={{ animationDelay: "150ms" }} />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" style={{ animationDelay: "300ms" }} />
+                  <span
+                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               )}
             </div>
 
             {/* Input */}
-            <form onSubmit={onSubmit} className="relative flex flex-col border-t border-[var(--border)] bg-[var(--background)]/40">
+            <form
+              onSubmit={onSubmit}
+              className="relative flex flex-col border-t border-[var(--border)] bg-[var(--background)]/40"
+            >
               <div className="flex items-center gap-2 px-4 py-3">
                 <MessageCircle className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
                 <input
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={rateLimitedOut ? "Rate limit reached — try again shortly…" : "Ask about Surajit…"}
+                  placeholder={
+                    rateLimitedOut
+                      ? "Rate limit reached — try again shortly…"
+                      : "Ask about Surajit…"
+                  }
                   maxLength={MAX_INPUT_CHARS + 50} // allow slight overage so counter shows red
                   className="flex-1 bg-transparent text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/70 focus:outline-none"
                   disabled={loading || rateLimitedOut}
@@ -376,7 +454,9 @@ export function SuraWidget() {
               </div>
               {/* Character counter — only shows when > 80% full */}
               {input.length > MAX_INPUT_CHARS * 0.8 && (
-                <div className={`pb-2 pr-4 text-right font-mono text-[10px] ${inputOverLimit ? "text-red-400" : "text-[var(--muted-foreground)]"}`}>
+                <div
+                  className={`pb-2 pr-4 text-right font-mono text-[10px] ${inputOverLimit ? "text-red-400" : "text-[var(--muted-foreground)]"}`}
+                >
                   {input.length}/{MAX_INPUT_CHARS}
                 </div>
               )}

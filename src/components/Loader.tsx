@@ -33,8 +33,13 @@ export function Loader({ onComplete }: { onComplete: () => void }) {
       className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-background"
     >
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -inset-[20%] animate-drift opacity-30"
-          style={{ background: "radial-gradient(circle at 30% 40%, #88bda466, transparent 50%), radial-gradient(circle at 70% 60%, #6592874d, transparent 50%)" }} />
+        <div
+          className="absolute -inset-[20%] animate-drift opacity-30"
+          style={{
+            background:
+              "radial-gradient(circle at 30% 40%, #88bda466, transparent 50%), radial-gradient(circle at 70% 60%, #6592874d, transparent 50%)",
+          }}
+        />
       </div>
 
       <motion.div

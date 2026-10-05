@@ -3,33 +3,122 @@
 // No need to touch portfolio-context.ts — it auto-generates from this data.
 // ──────────────────────────────────────────────────────────────────────────────
 
-export const bio = {
+export interface EducationData {
+  degree: string;
+  school: string;
+  year: string;
+  gpa: string;
+  coursework: string[];
+}
+
+export interface BioData {
+  name: string;
+  role: string;
+  email: string;
+  linkedin: string;
+  github: string;
+  portfolio: string;
+  instagram: string;
+  resume: string;
+  education: EducationData;
+  interests: string;
+}
+
+export interface InternshipItem {
+  role: string;
+  org: string;
+  tag: string;
+  period: string;
+  duration: string;
+  type: string;
+  logo: string;
+  points: string[];
+}
+
+export interface ProjectItem {
+  date: string;
+  title: string;
+  sub: string;
+  desc: string;
+  tags: string[];
+  repo: string;
+  image: string;
+}
+
+export interface CertItem {
+  title: string;
+  issuer: string;
+  date: string;
+  points: string[];
+  logo: string;
+}
+
+export interface PortfolioData {
+  bio: BioData;
+  skills: string[];
+  internships: InternshipItem[];
+  academicProjects: ProjectItem[];
+  personalProjects: ProjectItem[];
+  certs: CertItem[];
+}
+
+export const bio: BioData = {
   name: "Surajit Sahoo",
   role: "AI/ML Engineer building intelligent systems across ML, deep learning, NLP, computer vision, and IoT.",
-  email: "surajit007inc@gmail.com",
+  email: "surajitcoc121@gmail.com",
   linkedin: "https://linkedin.com/in/surajit-sahoo-084173335",
   github: "https://github.com/Surajit00007",
   portfolio: "https://surajitsahoo.netlify.app/",
   instagram: "https://instagram.com/surajit._007",
   resume: "https://surajitsahoo.netlify.app/resume.pdf",
   education: {
-    degree: "B.Tech, Computer Science (AI & ML)",
+    degree: "B.Tech in Computer Science with specialization in AI & ML",
     school: "Institute of Technical Education and Research, SOA University",
-    year: "Currently in his 4th Year, 2023 — 2027",
-    gpa: "8.45 / 10 (up to 4th semester)",
-    coursework: ["DSA in Java", "Machine Learning", "Deep Learning", "Algorithm Analysis", "Artificial Intelligence"],
+    year: "Expected Aug 2027",
+    gpa: "8.37 / 10.0 (Upto 6th sem)",
+    coursework: [
+      "DSA in JAVA",
+      "Machine Learning",
+      "Deep Learning",
+      "Algorithm Analysis",
+      "Artificial Intelligence",
+    ],
   },
-  interests: "AI, Machine Learning, Deep Learning, NLP, Computer Vision, IoT systems, and clean product design.",
+  interests:
+    "AI, Machine Learning, Deep Learning, NLP, Automation Workflows (n8n), IoT systems, and clean product design.",
 };
 
 export const skills = [
-  "Python", "PyTorch", "TensorFlow", "scikit-learn", "NumPy", "Pandas", "OpenCV", "FastAPI",
-  "Java", "C", "Streamlit", "HTML/CSS", "JavaScript", "Git", "GitHub", "MySQL",
-  "VS Code", "Google Colab", "Arduino IDE", "Embedded C", "Figma", "Canva",
+  "Python",
+  "PyTorch",
+  "TensorFlow",
+  "scikit-learn",
+  "NumPy",
+  "Pandas",
+  "OpenCV",
+  "FastAPI",
+  "Java",
+  "C",
+  "Streamlit",
+  "HTML/CSS",
+  "JavaScript",
+  "WordPress",
+  "Git",
+  "GitHub",
+  "MongoDB",
+  "MySQL",
+  "VS Code",
+  "Google Colab",
+  "Jupyter Notebook",
+  "Arduino IDE",
+  "Embedded C",
+  "Figma",
+  "Canva",
+  "n8n",
 ];
 
 // ─── ADD NEW INTERNSHIPS AT THE TOP (most recent first) ──────────────────────
-export const internships = [
+export const internships: InternshipItem[] = [
   {
     role: "Consultant I Intern — Cash Application",
     org: "HighRadius Technologies",
@@ -40,7 +129,7 @@ export const internships = [
     logo: "/highradius.png",
     points: [
       "Gained hands-on exposure to Cash Application and Accounts Receivable processes within an enterprise Order-to-Cash environment.",
-      "Worked with customer, invoice, payment, and remittance data; developed understanding of payment matching and exception-handling workflows.",
+      "Worked with customer, invoice, payment, and remittance data and developed an understanding of payment matching and exception-handling workflows.",
       "Applied SQL and database concepts to understand and work with structured enterprise data.",
       "Developed practical experience in business-process analysis, problem-solving, communication, and consulting workflows.",
     ],
@@ -59,6 +148,22 @@ export const internships = [
     ],
   },
   {
+    role: "Machine Learning Intern",
+    org: "Inligntech",
+    tag: "Inligntech",
+    period: "Jul 2025 – Sep 2025",
+    duration: "3 mos",
+    type: "Virtual",
+    logo: "",
+    points: [
+      "Developed a Spam Email Classifier using NLP and ML techniques.",
+      "Built a Credit Card Fraud Detection system to handle imbalanced datasets using methods like SMOTE and evaluated multiple ML models for high accuracy.",
+      "Implemented a Breast Cancer Classification model to predict malignancy/benign cases using supervised learning.",
+      "Applied an end-to-end ML pipeline including data preprocessing, feature selection, model training, and evaluation.",
+      "Strengthened expertise in classification, imbalanced data handling, and real-world ML applications.",
+    ],
+  },
+  {
     role: "Graphic Designer",
     org: "Soa Flying Community",
     tag: "Design · Community",
@@ -74,7 +179,7 @@ export const internships = [
 ];
 
 // ─── ADD NEW PROJECTS AT THE TOP (most recent first) ─────────────────────────
-export const academicProjects = [
+export const academicProjects: ProjectItem[] = [
   {
     date: "JAN 2026",
     title: "Centralised File-Sharing System with DHCP & FTP Server",
@@ -86,10 +191,10 @@ export const academicProjects = [
   },
   {
     date: "DEC 2025",
-    title: "Agricultural Commodity Price Prediction",
+    title: "Agricultural Commodity Price Prediction using Deep Learning",
     sub: "Deep Learning / Time-Series",
-    desc: "Built an intelligent prediction system using deep learning. Performed rigorous EDA, feature engineering (lags, rolling statistics, seasonality encoding) and time-aware train–test splitting, achieving improved forecasting accuracy measured via RMSE, MAE, R², and MAPE.",
-    tags: ["Deep Learning", "EDA", "Forecasting"],
+    desc: "Performed rigorous EDA, feature engineering (lags and rolling statistics) and achieved improved forecasting accuracy measured via RMSE, MAE, R², and MAPE. Worked with real Indian agricultural market price data (23K+ records) to study price trends and volatility. Designed and trained a Random Forest regression model achieving strong performance (R² ≈ 0.88). Explored deep learning models such as LSTM, GRU, and Transformer architectures.",
+    tags: ["Deep Learning", "Random Forest", "Time-Series", "EDA", "Python"],
     repo: "https://github.com/Surajit00007/Agricultural_Price_Prediction_using_DL",
     image: "agriForecast",
   },
@@ -97,20 +202,29 @@ export const academicProjects = [
     date: "May 2025",
     title: "Intelligent Chatbot Development",
     sub: "Transformer-based AI",
-    desc: "Built an intelligent conversational chatbot using transformer models trained on Cornell Movie Dialogs datasets. Fine-tuned for relevance, tone consistency, and response quality using beam search and sampling.",
-    tags: ["Transformers", "NLP", "Python"],
+    desc: "Built an intelligent conversational chatbot using transformer models trained on Cornell Movie Dialogs datasets, enabling human-like responses through contextual understanding and a self-attention mechanism. Fine-tuned the model for relevance, tone consistency, and response quality using beam search and sampling.",
+    tags: ["Transformers", "NLP", "Python", "Self-Attention"],
     repo: "https://github.com/Surajit00007/Intelligent_Chatbot_Development-project",
     image: "chatbotAgent",
   },
 ];
 
-export const personalProjects = [
+export const personalProjects: ProjectItem[] = [
+  {
+    date: "MARCH 2026",
+    title: "Sahara — AI-Based Elderly Health Monitoring System",
+    sub: "Hackathon Project · AI Healthcare",
+    desc: "Built an AI-driven health monitoring webapp for elderly users with simplified step-by-step logging of vitals (BP, sugar, Hb, weight) and real-time risk scoring. Developed AI Nutrition Tracker using Gemini API to parse Indian meals (Hindi/Odia input) and generate macronutrient insights aligned with ICMR standards. Designed an anaemia risk prediction model using Hb trends and dietary intake with early warning alerts. Implemented SOS emergency system with one-tap alert, live GPS tracking, and SMS integration.",
+    tags: ["Gemini API", "AI Healthcare", "Risk Scoring", "Python", "SMS Alert"],
+    repo: "https://github.com/Surajit00007",
+    image: "chatbotAgent",
+  },
   {
     date: "Feb 2026",
     title: "Local Drop",
-    sub: "Peer-to-Peer File Transfer App",
-    desc: "Developed a robust peer-to-peer file sharing application using WebRTC, designed to work seamlessly across mobile hotspots and various network topologies. Implemented reliable ICE candidate handling and connection fallback mechanisms.",
-    tags: ["WebRTC", "Networking", "Android", "File Transfer"],
+    sub: "Secure P2P File Transfer",
+    desc: "Developed Local Drop, a secure peer-to-peer file transfer application enabling seamless file sharing between devices over local networks using WebRTC DataChannels, eliminating the need for cloud storage or third-party servers. Implemented real-time encrypted file transfer with chunked streaming, progress tracking (percentage, speed, ETA) and bidirectional sharing (laptop to phone and vice versa).",
+    tags: ["WebRTC", "Networking", "P2P", "Encryption", "File Transfer"],
     repo: "https://github.com/Surajit00007/LocalDrop-fileshare",
     image: "webrtcFileshare",
   },
@@ -136,34 +250,54 @@ export const personalProjects = [
     date: "Jun 2024",
     title: "Automatic Room Light System",
     sub: "IoT Project",
-    desc: "Designed a microcontroller-based automatic room light system with a bidirectional counter using an IR sensor and Arduino Uno. Developed control logic in Embedded C, integrated infrared relay switching.",
-    tags: ["Arduino", "IoT", "Embedded C"],
+    desc: "Designed and implemented a microcontroller-based automatic room light system with a bidirectional counter using an infrared sensor and Arduino Uno, enabling lights to toggle based on human presence. Developed the control logic using Embedded C (Arduino IDE), integrated infrared relay switching, and documented the design with flowcharts and circuit diagrams.",
+    tags: ["Arduino Uno", "Embedded C", "IoT", "IR Sensor"],
     repo: "https://github.com/Surajit00007/Automatic_Room_Light_System",
     image: "smartLight",
   },
 ];
 
 // ─── ADD NEW CERTS AT THE TOP (most recent first) ────────────────────────────
-export const certs = [
+export const certs: CertItem[] = [
   {
     title: "GenAI Job Simulation",
     issuer: "Forage (Boston Consulting Group)",
     date: "Dec 2025",
-    points: ["AI-powered financial chatbot in Python", "Analyzed 10-K and 10-Q financial reports"],
+    points: [
+      "Built an AI-powered financial chatbot using Python",
+      "Analyzed and interpreted data from 10-K and 10-Q financial reports",
+    ],
     logo: "https://cdn.uconnectlabs.com/wp-content/uploads/sites/60/2025/12/ChatGPT-Image-Dec-1-2025-08_58_40-AM-480x480.png",
   },
   {
     title: "Google Cloud Arcade Trooper",
     issuer: "Google Cloud",
     date: "Jun 2025",
-    points: ["Trooper Tier — Summer Batch (Apr–Jun) 2025", "Hands-on BigQuery, Kubernetes, AI/ML on GCP", "Labs, trivia, and skill badges"],
+    points: [
+      "Trooper Tier — Summer Batch (Apr–Jun) 2025",
+      "Hands-on experience with BigQuery, Kubernetes, and AI/ML tools on GCP",
+      "Completed various labs, trivia challenges, and skill badges in the Google Cloud ecosystem",
+    ],
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/googlecloud/googlecloud-original.svg",
   },
   {
-    title: "Salesforce Agentblaze Champions Badge",
+    title: "Salesforce Agentblazer Champion Badge",
     issuer: "Salesforce",
     date: "Jun 2025",
-    points: ["Agentforce concepts & business impact", "Foundational agent technology", "Built an AI-powered agent"],
+    points: [
+      "Built an AI-powered agent to send automated business emails",
+      "Identified real-world use cases for intelligent agent deployment",
+      "Agentforce concepts & foundational agent technology",
+    ],
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/salesforce/salesforce-original.svg",
   },
 ];
+
+export const defaultPortfolioData: PortfolioData = {
+  bio,
+  skills,
+  internships,
+  academicProjects,
+  personalProjects,
+  certs,
+};

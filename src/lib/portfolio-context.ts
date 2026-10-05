@@ -2,9 +2,10 @@
 // Edit src/lib/portfolio-data.ts instead.
 // This context is fed to SURA AI as its system prompt.
 
-import { bio, skills, internships, academicProjects, personalProjects, certs } from "./portfolio-data";
+import { defaultPortfolioData, PortfolioData } from "./portfolio-data";
 
-function buildContext(): string {
+export function buildContextFromData(data: PortfolioData = defaultPortfolioData): string {
+  const { bio, skills, internships, academicProjects, personalProjects, certs } = data;
   const lines: string[] = [];
 
   lines.push(`NAME: ${bio.name}`);
@@ -19,7 +20,9 @@ function buildContext(): string {
   lines.push(``);
 
   lines.push(`EDUCATION:`);
-  lines.push(`- ${bio.education.degree} at ${bio.education.school} (${bio.education.year}). GPA: ${bio.education.gpa}.`);
+  lines.push(
+    `- ${bio.education.degree} at ${bio.education.school} (${bio.education.year}). GPA: ${bio.education.gpa}.`,
+  );
   lines.push(`- Coursework: ${bio.education.coursework.join(", ")}.`);
   lines.push(``);
 
@@ -27,10 +30,14 @@ function buildContext(): string {
   lines.push(skills.join(", ") + ".");
   lines.push(``);
 
-  lines.push(`INTERNSHIPS (listed most recent first — the first entry is the LATEST work experience):`);
+  lines.push(
+    `INTERNSHIPS (listed most recent first — the first entry is the LATEST work experience):`,
+  );
   internships.forEach((intern, i) => {
     const isLatest = i === 0 ? " ← MOST RECENT / LATEST WORK EXPERIENCE" : "";
-    lines.push(`${i + 1}. ${intern.role} @ ${intern.org} (${intern.period}, ${intern.duration}, ${intern.type})${isLatest}:`);
+    lines.push(
+      `${i + 1}. ${intern.role} @ ${intern.org} (${intern.period}, ${intern.duration}, ${intern.type})${isLatest}:`,
+    );
     intern.points.forEach((pt) => lines.push(`   - ${pt}`));
     if (i < internships.length - 1) lines.push(``);
   });
@@ -59,4 +66,4 @@ function buildContext(): string {
   return lines.join("\n").trim();
 }
 
-export const portfolioContext = buildContext();
+export const portfolioContext = buildContextFromData(defaultPortfolioData);

@@ -3,12 +3,13 @@ import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { portfolioContext } from "@/lib/portfolio-context";
+import { buildContextFromData } from "@/lib/portfolio-context";
+import { getPortfolioDataFromDb } from "@/lib/db.server";
 
 // ─── Rate Limiter ────────────────────────────────────────────────────────────
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
-const RATE_LIMIT_MAX_REQUESTS = 20;          // max requests per window per IP
-const MAX_INPUT_CHARS = 500;                 // max characters per user message
+const RATE_LIMIT_MAX_REQUESTS = 20; // max requests per window per IP
+const MAX_INPUT_CHARS = 500; // max characters per user message
 
 const ipRequestLog = new Map<string, number[]>();
 
@@ -31,7 +32,8 @@ function retryAfterSeconds(ip: string): number {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-const systemPrompt = `You are SURA — Surajit's personal AI assistant, embedded in his portfolio site.
+function getSystemPrompt(portfolioContextText: string): string {
+  return `You are SURA — Surajit's personal AI assistant, embedded in his portfolio site.
 You speak confidently, concisely, and strictly to the point.
 You know everything about Surajit: his skills, projects, education, certifications, interests, and how to contact him.
 
@@ -53,8 +55,9 @@ CRITICAL RULES FOR CONCISENESS & STYLE:
 - Never break character. You ARE SURA.
 
 --- PORTFOLIO CONTEXT ---
-${portfolioContext}
+${portfolioContextText}
 --- END CONTEXT ---`;
+}
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -82,7 +85,7 @@ export const Route = createFileRoute("/api/chat")({
                   "Content-Type": "application/json",
                   "Retry-After": String(retryAfter),
                 },
-              }
+              },
             );
           }
 
@@ -99,7 +102,7 @@ export const Route = createFileRoute("/api/chat")({
               JSON.stringify({
                 error: `Your message is too long (max ${MAX_INPUT_CHARS} characters). Please keep it concise.`,
               }),
-              { status: 413, headers: { "Content-Type": "application/json" } }
+              { status: 413, headers: { "Content-Type": "application/json" } },
             );
           }
 
@@ -108,12 +111,19 @@ export const Route = createFileRoute("/api/chat")({
           const groqKey = process.env.GROQ_API_KEY;
           const geminiKey = process.env.GEMINI_API_KEY;
 
-          console.log("SURA Chat API keys:", { lovableKey: !!lovableKey, groqKey: !!groqKey, geminiKey: !!geminiKey });
+          console.log("SURA Chat API keys:", {
+            lovableKey: !!lovableKey,
+            groqKey: !!groqKey,
+            geminiKey: !!geminiKey,
+          });
 
           if (!lovableKey && !groqKey && !geminiKey) {
             return Response.json(
-              { error: "No API key configured. Set GROQ_API_KEY in Netlify environment variables (Site settings → Environment variables)." },
-              { status: 500 }
+              {
+                error:
+                  "No API key configured. Set GROQ_API_KEY in Netlify environment variables (Site settings → Environment variables).",
+              },
+              { status: 500 },
             );
           }
 
@@ -134,9 +144,12 @@ export const Route = createFileRoute("/api/chat")({
           }
 
           // ── 6. Generate response ───────────────────────────────────────────
+          const portfolioData = await getPortfolioDataFromDb();
+          const portfolioContextText = buildContextFromData(portfolioData);
+
           const { text } = await generateText({
             model,
-            system: systemPrompt,
+            system: getSystemPrompt(portfolioContextText),
             messages: messages.map((m) => ({ role: m.role, content: m.content })),
             maxOutputTokens: 250, // ~200 words — keeps replies tight
           });

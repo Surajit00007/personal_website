@@ -37,3 +37,4 @@ dist-ssr
 # Tool / Local cache
 .node_portable/
 .lovable/
+.neon

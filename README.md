@@ -5,12 +5,15 @@ A cinematic personal portfolio website built with React, TypeScript, Vite, and T
 ## 📸 Screenshots
 
 ### Hero & About
+
 ![Hero & About Section](public/screenshots/hero_and_about.webp)
 
 ### Projects
+
 ![Projects](public/screenshots/projects.webp)
 
 ### SURA AI Chatbot
+
 ![SURA Chatbot](public/screenshots/sura_chatbot.png)
 
 ---
@@ -22,11 +25,13 @@ npm install
 ```
 
 Create a `.env` file in the root:
+
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
 Run locally:
+
 ```bash
 npm run dev
 ```
@@ -94,15 +99,46 @@ personal_website/
 src/lib/portfolio-data.ts
 ```
 
-| What to update | Where in the file |
-|---|---|
-| Add new internship | `internships` array — add at the **top** (most recent first) |
-| Add new project | `academicProjects` or `personalProjects` — add at the **top** |
-| Add new certificate | `certs` array — add at the **top** |
-| Update bio / links | `bio` object |
-| Update skills | `skills` array |
+| What to update      | Where in the file                                             |
+| ------------------- | ------------------------------------------------------------- |
+| Add new internship  | `internships` array — add at the **top** (most recent first)  |
+| Add new project     | `academicProjects` or `personalProjects` — add at the **top** |
+| Add new certificate | `certs` array — add at the **top**                            |
+| Update bio / links  | `bio` object                                                  |
+| Update skills       | `skills` array                                                |
 
 > The SURA AI chatbot will automatically reflect your changes — no need to touch `portfolio-context.ts`.
+
+---
+
+## 🐘 Neon Database Integration
+
+You can store and fetch all frontend details dynamically from a **Neon Serverless PostgreSQL** database.
+
+### 1. Get your Neon Connection String
+
+1. Create a project at [Neon](https://neon.tech).
+2. Copy your connection URL: `postgresql://user:password@ep-...neon.tech/neondb?sslmode=require`.
+
+### 2. Add to `.env`
+
+```env
+DATABASE_URL=postgresql://user:password@ep-...neon.tech/neondb?sslmode=require
+```
+
+### 3. Initialize & Seed Database
+
+Run the seed script to automatically create the `portfolio_sections` table and populate it with your portfolio details:
+
+```bash
+npm run db:seed
+```
+
+### 4. Automatic Fallback
+
+- If `DATABASE_URL` is not provided or if the database is unreachable, the site automatically and smoothly falls back to `src/lib/portfolio-data.ts`.
+- When Neon is configured, both the frontend website and the SURA AI chatbot dynamically load the latest content from Neon DB.
+- REST API endpoint available at: `GET /api/portfolio` and `POST /api/portfolio`.
 
 ---
 

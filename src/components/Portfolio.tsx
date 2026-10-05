@@ -1,12 +1,32 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Github, Linkedin, Mail, Globe, Instagram, Download, ExternalLink, ImageIcon } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Globe,
+  Instagram,
+  Download,
+  ExternalLink,
+  ImageIcon,
+  Wrench,
+} from "lucide-react";
 import { Loader } from "./Loader";
 import { GridBackground } from "./GridBackground";
 import { SuraWidget } from "./SuraWidget";
 import { SideNav } from "./SideNav";
 import { Reveal } from "./Reveal";
-import { skills, internships, academicProjects, personalProjects, certs } from "@/lib/portfolio-data";
+import { DevLoginModal } from "./DevLoginModal";
+import { DevDashboard } from "./DevDashboard";
+import { toast } from "sonner";
+import { usePortfolio } from "@/hooks/use-portfolio";
+import type {
+  PortfolioData,
+  BioData,
+  ProjectItem,
+  InternshipItem,
+  CertItem,
+} from "@/lib/portfolio-data";
 import portrait from "@/assets/portrait.webp";
 import bgTex from "@/assets/bg-texture.webp";
 import networkSharing from "@/assets/network_sharing.webp";
@@ -19,16 +39,60 @@ import smartLight from "@/assets/smart_light.webp";
 
 // Image asset map — maps the string keys in portfolio-data.ts to the imported asset
 const imageMap: Record<string, string> = {
-  networkSharing, agriForecast, chatbotAgent, webrtcFileshare, localLlm, expenseTracker, smartLight,
+  networkSharing,
+  agriForecast,
+  chatbotAgent,
+  webrtcFileshare,
+  localLlm,
+  expenseTracker,
+  smartLight,
 };
 
-
-export function Portfolio() {
+export function Portfolio({ initialData }: { initialData?: PortfolioData } = {}) {
   const [loading, setLoading] = useState(true);
+  const { data } = usePortfolio(initialData);
+
+  // Dev Mode State
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showDevDashboard, setShowDevDashboard] = useState(false);
+  const [isDevUnlocked, setIsDevUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isAuth = sessionStorage.getItem("portfolio_dev_auth") === "true";
+      setIsDevUnlocked(isAuth);
+    }
+  }, []);
+
+  const handleTriggerDevMode = () => {
+    const isAuth =
+      typeof window !== "undefined" && sessionStorage.getItem("portfolio_dev_auth") === "true";
+    if (isAuth) {
+      setIsDevUnlocked(true);
+      setShowDevDashboard(true);
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("portfolio_dev_auth");
+      sessionStorage.removeItem("portfolio_dev_pass");
+    }
+    setIsDevUnlocked(false);
+    setShowDevDashboard(false);
+    toast.info("Dev Mode locked.");
+  };
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground" style={{ fontFeatureSettings: "'kern' 1, 'liga' 1" }}>
-      <AnimatePresence>{loading && <Loader onComplete={() => setLoading(false)} />}</AnimatePresence>
+    <div
+      className="relative min-h-screen bg-background text-foreground"
+      style={{ fontFeatureSettings: "'kern' 1, 'liga' 1" }}
+    >
+      <AnimatePresence>
+        {loading && <Loader onComplete={() => setLoading(false)} />}
+      </AnimatePresence>
 
       {/* Global grain */}
       <div className="grain-overlay" aria-hidden />
@@ -42,7 +106,10 @@ export function Portfolio() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
         <div className="absolute -left-[10%] top-[5%] h-[60vw] max-h-[700px] w-[60vw] max-w-[700px] rounded-full bg-accent/5 blur-[120px] animate-drift" />
-        <div className="absolute -right-[10%] top-[35%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-accent/5 blur-[100px] animate-drift" style={{ animationDelay: "-10s" }} />
+        <div
+          className="absolute -right-[10%] top-[35%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-accent/5 blur-[100px] animate-drift"
+          style={{ animationDelay: "-10s" }}
+        />
       </div>
 
       {/* Animated 3D perspective grid */}
@@ -56,13 +123,53 @@ export function Portfolio() {
       <SideNav />
 
       <main className="relative z-10 lg:pl-20">
-        <Hero />
-        <About />
-        <Projects />
-        <Internships />
-        <Certificates />
-        <Contact />
+        <Hero bio={data.bio} />
+        <About
+          bio={data.bio}
+          skills={data.skills}
+          projectCount={data.academicProjects.length + data.personalProjects.length}
+          certCount={data.certs.length}
+        />
+        <Projects
+          academicProjects={data.academicProjects}
+          personalProjects={data.personalProjects}
+        />
+        <Internships internships={data.internships} />
+        <Certificates certs={data.certs} />
+        <Contact bio={data.bio} onTriggerDevMode={handleTriggerDevMode} />
       </main>
+
+      {/* Dev Mode Floating Pill (when unlocked) */}
+      {isDevUnlocked && !showDevDashboard && (
+        <button
+          type="button"
+          onClick={() => setShowDevDashboard(true)}
+          className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full border border-accent/40 bg-background/90 px-3.5 py-1.5 font-mono text-[11px] font-medium text-accent shadow-xl backdrop-blur-md transition-all duration-300 hover:border-accent hover:bg-accent/15 cursor-pointer"
+          title="Open Live Neon DB Dev Dashboard"
+        >
+          <Wrench className="h-3.5 w-3.5 text-accent animate-pulse" />
+          <span>Dev Mode</span>
+        </button>
+      )}
+
+      {/* Dev Mode Fullscreen Dashboard */}
+      {showDevDashboard && (
+        <DevDashboard
+          initialData={data}
+          onClose={() => setShowDevDashboard(false)}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Dev Mode Password Login Modal */}
+      <DevLoginModal
+        open={showLoginModal}
+        onOpenChange={setShowLoginModal}
+        onSuccess={() => {
+          setIsDevUnlocked(true);
+          setShowDevDashboard(true);
+        }}
+      />
 
       {/* Chatbot — fixed overlay, zero layout footprint */}
       <div className="pointer-events-none fixed inset-0 z-50">
@@ -74,12 +181,21 @@ export function Portfolio() {
   );
 }
 
-function Hero() {
+function Hero({ bio }: { bio: BioData }) {
+  const nameParts = (bio?.name || "Surajit Sahoo").trim().split(" ");
+  const firstName = nameParts[0] || "SURAJIT";
+  const restName = nameParts.slice(1).join(" ") || "SAHOO";
+
   return (
-    <section id="home" className="relative flex min-h-screen items-center px-5 pt-20 pb-12 sm:px-12 sm:pt-24 sm:pb-16 lg:px-20">
+    <section
+      id="home"
+      className="relative flex min-h-screen items-center px-5 pt-20 pb-12 sm:px-12 sm:pt-24 sm:pb-16 lg:px-20"
+    >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/3 h-[60vw] w-[60vw] -translate-x-1/2 rounded-full opacity-20 animate-drift blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%)" }} />
+        <div
+          className="absolute left-1/2 top-1/3 h-[60vw] w-[60vw] -translate-x-1/2 rounded-full opacity-20 animate-drift blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%)" }}
+        />
       </div>
 
       <div className="relative grid w-full grid-cols-12 items-center gap-6 sm:gap-8">
@@ -94,11 +210,13 @@ function Hero() {
             <div className="glass absolute inset-0 rounded-3xl" />
             <img
               src={portrait}
-              alt="Portrait of Surajit Sahoo"
+              alt={`Portrait of ${bio.name}`}
               className="relative h-full w-full rounded-3xl object-cover"
             />
-            <div className="pointer-events-none absolute inset-0 rounded-3xl"
-              style={{ boxShadow: "inset 0 0 80px rgba(0,0,0,0.5)" }} />
+            <div
+              className="pointer-events-none absolute inset-0 rounded-3xl"
+              style={{ boxShadow: "inset 0 0 80px rgba(0,0,0,0.5)" }}
+            />
           </motion.div>
         </div>
 
@@ -109,7 +227,9 @@ function Hero() {
             transition={{ delay: 0.3, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
             className="font-display text-[clamp(3rem,12vw,9vw)] leading-[0.93] tracking-[-0.03em]"
           >
-            SURAJIT<br />SAHOO
+            {firstName.toUpperCase()}
+            <br />
+            {restName.toUpperCase()}
           </motion.h1>
 
           <motion.div
@@ -119,7 +239,7 @@ function Hero() {
             className="mt-5 flex items-center justify-center gap-3 lg:justify-start"
           >
             <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-muted-foreground sm:text-[13px] sm:tracking-[0.45em]">
-              AI/ML Engineer
+              {bio.role?.includes("AI/ML") ? "AI/ML Engineer" : bio.role || "AI/ML Engineer"}
             </span>
           </motion.div>
 
@@ -129,8 +249,9 @@ function Hero() {
             transition={{ delay: 1, duration: 1 }}
             className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base sm:mt-8 lg:mx-0"
           >
-            Crafting intelligent systems at the intersection of machine learning,
-            deep learning, and human-centered design.
+            {bio.role?.length > 40
+              ? bio.role
+              : "Crafting intelligent systems at the intersection of machine learning, deep learning, and human-centered design."}
           </motion.p>
 
           <motion.div
@@ -139,14 +260,39 @@ function Hero() {
             transition={{ delay: 1.2, duration: 0.8 }}
             className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:justify-start"
           >
-            <a href="#projects"
+            <a
+              href="#projects"
               className="group relative inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/5 px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.3em] backdrop-blur-xl transition-all hover:border-accent hover:bg-foreground/10 sm:px-6 sm:py-3 sm:text-[11px]"
             >
               <span>View Work</span>
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </a>
-            <a href="#contact" className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground sm:text-[11px]">
+            <a
+              href="#contact"
+              className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-foreground sm:text-[11px]"
+            >
               Get in touch
+            </a>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.35, duration: 0.8 }}
+            className="mt-4 flex items-center justify-center lg:justify-start"
+          >
+            <a
+              href={bio.resume || "/resume.pdf"}
+              download
+              target="_blank"
+              rel="noreferrer"
+              className="group relative inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground transition-colors hover:text-foreground sm:text-[11px]"
+            >
+              <Download
+                className="h-3.5 w-3.5 text-accent transition-transform duration-300 group-hover:-translate-y-0.5"
+                strokeWidth={1.5}
+              />
+              <span>Download Resume</span>
             </a>
           </motion.div>
         </div>
@@ -177,11 +323,23 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
   );
 }
 
-function About() {
+function About({
+  bio,
+  skills,
+  projectCount,
+  certCount,
+}: {
+  bio: BioData;
+  skills: string[];
+  projectCount: number;
+  certCount: number;
+}) {
   return (
     <section id="about" className="relative px-5 py-16 sm:py-32 sm:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
-        <Reveal><SectionLabel num="01" label="About" /></Reveal>
+        <Reveal>
+          <SectionLabel num="01" label="About" />
+        </Reveal>
 
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-7">
@@ -194,15 +352,16 @@ function About() {
             </Reveal>
             <Reveal i={1}>
               <p className="mx-auto mt-6 max-w-xl text-center text-sm leading-relaxed text-muted-foreground sm:mt-8 sm:text-base lg:mx-0 lg:text-left">
-                I'm an aspiring AI/ML Engineer with a strong foundation in machine learning
-                and deep learning. I enjoy building industry-level technologies and transforming
-                complex data into actionable insights.
+                I'm an aspiring AI/ML Engineer with a strong foundation in machine learning and deep
+                learning. I enjoy building industry-level technologies and transforming complex data
+                into actionable insights.
               </p>
             </Reveal>
             <Reveal i={2}>
               <p className="mx-auto mt-4 max-w-xl text-center text-sm leading-relaxed text-muted-foreground sm:text-base lg:mx-0 lg:text-left">
-                My work spans neural networks, NLP, computer vision, and IoT systems —
-                continuously pushing the boundaries of what's possible with AI.
+                {bio.interests
+                  ? `My focus includes ${bio.interests}`
+                  : "My work spans neural networks, NLP, computer vision, and IoT systems — continuously pushing the boundaries of what's possible with AI."}
               </p>
             </Reveal>
 
@@ -235,10 +394,21 @@ function About() {
               <div className="mac-card">
                 {/* Titlebar */}
                 <div className="mac-titlebar">
-                  <span className="h-3 w-3 rounded-full" style={{ background: "var(--card-dot-red)" }} />
-                  <span className="h-3 w-3 rounded-full" style={{ background: "var(--card-dot-yellow)" }} />
-                  <span className="h-3 w-3 rounded-full" style={{ background: "var(--card-dot-green)" }} />
-                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">education</span>
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ background: "var(--card-dot-red)" }}
+                  />
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ background: "var(--card-dot-yellow)" }}
+                  />
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ background: "var(--card-dot-green)" }}
+                  />
+                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">
+                    education
+                  </span>
                 </div>
                 {/* Card body */}
                 <div className="bg-[linear-gradient(160deg,var(--card-from),var(--card-to))] p-5 sm:p-6">
@@ -246,14 +416,16 @@ function About() {
                     Education
                   </div>
                   <div className="mt-3 font-display text-base leading-snug text-[color:var(--card-fg)] sm:text-lg">
-                    Institute of Technical Education and Research
+                    {bio.education.school}
                   </div>
-                  <div className="mt-1 text-sm text-[color:var(--card-accent)]">SOA University · 2023 — 2027</div>
+                  <div className="mt-1 text-sm text-[color:var(--card-accent)]">
+                    {bio.education.year}
+                  </div>
                   <div className="mt-3 text-sm text-[color:var(--card-fg)]/90 font-medium">
-                    B.Tech, CS (AI & ML) — 4th Year
+                    {bio.education.degree}
                   </div>
                   <div className="mt-1 font-mono text-xs text-[color:var(--card-accent)]">
-                    GPA <span className="text-[color:var(--card-fg)]">8.45 / 10</span> (upto 4th sem)
+                    GPA <span className="text-[color:var(--card-fg)]">{bio.education.gpa}</span>
                   </div>
 
                   <div className="mt-5 border-t border-[color:var(--card-accent)]/20 pt-4">
@@ -261,8 +433,13 @@ function About() {
                       Coursework
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                      {["DSA in Java", "Machine Learning", "Deep Learning", "Algorithm Analysis", "Artificial Intelligence"].map((c) => (
-                        <span key={c} className="rounded-md border border-[color:var(--card-accent)]/20 px-2 py-1 text-[color:var(--card-fg-soft)]/80">{c}</span>
+                      {bio.education.coursework.map((c) => (
+                        <span
+                          key={c}
+                          className="rounded-md border border-[color:var(--card-accent)]/20 px-2 py-1 text-[color:var(--card-fg-soft)]/80"
+                        >
+                          {c}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -271,19 +448,32 @@ function About() {
 
               <div className="mt-4 grid grid-cols-3 gap-2.5 sm:mt-6 sm:gap-4">
                 {[
-                  { n: "07+", l: "Projects" },
-                  { n: "03", l: "Certs" },
+                  { n: `${projectCount.toString().padStart(2, "0")}+`, l: "Projects" },
+                  { n: `${certCount.toString().padStart(2, "0")}`, l: "Certs" },
                   { n: "04", l: "Domains" },
                 ].map((s) => (
                   <div key={s.l} className="mac-card">
                     <div className="mac-titlebar !gap-1 !px-2 !py-1.5">
-                      <span className="h-2 w-2 rounded-full" style={{ background: "var(--card-dot-red)" }} />
-                      <span className="h-2 w-2 rounded-full" style={{ background: "var(--card-dot-yellow)" }} />
-                      <span className="h-2 w-2 rounded-full" style={{ background: "var(--card-dot-green)" }} />
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: "var(--card-dot-red)" }}
+                      />
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: "var(--card-dot-yellow)" }}
+                      />
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: "var(--card-dot-green)" }}
+                      />
                     </div>
                     <div className="bg-[linear-gradient(135deg,var(--card-from),var(--card-to))] p-3 sm:p-4">
-                      <div className="font-display text-2xl tracking-tight text-[color:var(--card-fg)] sm:text-3xl">{s.n}</div>
-                      <div className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[color:var(--card-accent)] sm:text-[9px] sm:tracking-[0.14em]">{s.l}</div>
+                      <div className="font-display text-2xl tracking-tight text-[color:var(--card-fg)] sm:text-3xl">
+                        {s.n}
+                      </div>
+                      <div className="mt-0.5 font-mono text-[8px] uppercase tracking-[0.1em] text-[color:var(--card-accent)] sm:text-[9px] sm:tracking-[0.14em]">
+                        {s.l}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -296,17 +486,32 @@ function About() {
   );
 }
 
-function ProjectCard({ p, i }: { p: typeof academicProjects[0]; i: number }) {
+function ProjectCard({ p, i }: { p: ProjectItem; i: number }) {
+  const imageSrc =
+    imageMap[p.image] ||
+    (p.image && (p.image.startsWith("http") || p.image.startsWith("/")) ? p.image : null);
+
   return (
-    <Reveal key={p.title} i={i}>
+    <Reveal key={p.title + i} i={i}>
       {/* macOS browser chrome wrapper */}
       <div className="mac-card group transition-all duration-500 hover:-translate-y-1 hover:scale-[1.005]">
         {/* Titlebar */}
         <div className="mac-titlebar">
-          <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-red)" }} />
-          <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-yellow)" }} />
-          <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-green)" }} />
-          <span className="ml-3 flex-1 overflow-hidden truncate font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/20 sm:tracking-[0.2em]">{p.sub}</span>
+          <span
+            className="h-3 w-3 shrink-0 rounded-full"
+            style={{ background: "var(--card-dot-red)" }}
+          />
+          <span
+            className="h-3 w-3 shrink-0 rounded-full"
+            style={{ background: "var(--card-dot-yellow)" }}
+          />
+          <span
+            className="h-3 w-3 shrink-0 rounded-full"
+            style={{ background: "var(--card-dot-green)" }}
+          />
+          <span className="ml-3 flex-1 overflow-hidden truncate font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/20 sm:tracking-[0.2em]">
+            {p.sub}
+          </span>
         </div>
 
         {/* Card body */}
@@ -316,12 +521,15 @@ function ProjectCard({ p, i }: { p: typeof academicProjects[0]; i: number }) {
             {/* Image tile — always visible, smaller on mobile */}
             <div className="flex shrink-0 flex-col items-start gap-2">
               <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-[color:var(--card-accent)]/20 bg-[color:var(--card-accent)]/10 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.25)] sm:h-32 sm:w-32">
-                {imageMap[p.image] ? (
-                  <img src={imageMap[p.image]} alt={p.title} className="h-full w-full object-cover" />
+                {imageSrc ? (
+                  <img src={imageSrc} alt={p.title} className="h-full w-full object-cover" />
                 ) : (
                   <>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_60%)]" />
-                    <ImageIcon className="relative h-7 w-7 text-[color:var(--card-fg)]/50 sm:h-9 sm:w-9" strokeWidth={1.5} />
+                    <ImageIcon
+                      className="relative h-7 w-7 text-[color:var(--card-fg)]/50 sm:h-9 sm:w-9"
+                      strokeWidth={1.5}
+                    />
                   </>
                 )}
               </div>
@@ -347,32 +555,45 @@ function ProjectCard({ p, i }: { p: typeof academicProjects[0]; i: number }) {
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-1.5 sm:gap-2">
             {p.tags.map((t) => (
-              <span key={t} className="rounded-full border border-[color:var(--card-fg)]/10 bg-[color:var(--card-fg)]/5 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[color:var(--card-fg-soft)]/70 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]">
+              <span
+                key={t}
+                className="rounded-full border border-[color:var(--card-fg)]/10 bg-[color:var(--card-fg)]/5 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em] text-[color:var(--card-fg-soft)]/70 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-[0.2em]"
+              >
                 {t}
               </span>
             ))}
           </div>
-          <a
-            href={p.repo}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[color:var(--card-fg)]/15 bg-[color:var(--card-fg)]/5 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[color:var(--card-fg)]/80 transition-all duration-300 hover:border-[color:var(--card-fg)]/30 hover:bg-[color:var(--card-fg)]/10 hover:text-[color:var(--card-fg)] sm:mt-5 sm:w-auto"
-          >
-            <Github className="h-3.5 w-3.5" strokeWidth={1.75} />
-            <span>View Repository</span>
-            <ExternalLink className="h-3 w-3" strokeWidth={1.75} />
-          </a>
+          {p.repo ? (
+            <a
+              href={p.repo}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[color:var(--card-fg)]/15 bg-[color:var(--card-fg)]/5 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[color:var(--card-fg)]/80 transition-all duration-300 hover:border-[color:var(--card-fg)]/30 hover:bg-[color:var(--card-fg)]/10 hover:text-[color:var(--card-fg)] sm:mt-5 sm:w-auto"
+            >
+              <Github className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <span>View Repository</span>
+              <ExternalLink className="h-3 w-3" strokeWidth={1.75} />
+            </a>
+          ) : null}
         </article>
       </div>
     </Reveal>
   );
 }
 
-function Projects() {
+function Projects({
+  academicProjects,
+  personalProjects,
+}: {
+  academicProjects: ProjectItem[];
+  personalProjects: ProjectItem[];
+}) {
   return (
     <section id="projects" className="relative px-5 py-16 sm:py-32 sm:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
-        <Reveal><SectionLabel num="02" label="Projects" /></Reveal>
+        <Reveal>
+          <SectionLabel num="02" label="Projects" />
+        </Reveal>
 
         <Reveal>
           <h2 className="mb-8 text-center font-display text-[clamp(2rem,9vw,4.5rem)] leading-[1.05] tracking-tight sm:mb-16 sm:text-6xl lg:text-left lg:text-7xl">
@@ -394,7 +615,7 @@ function Projects() {
         </div>
         <div className="mb-20 space-y-6">
           {academicProjects.map((p, i) => (
-            <ProjectCard key={p.title} p={p} i={i} />
+            <ProjectCard key={p.title + i} p={p} i={i} />
           ))}
         </div>
 
@@ -406,7 +627,7 @@ function Projects() {
         </div>
         <div className="space-y-6">
           {personalProjects.map((p, i) => (
-            <ProjectCard key={p.title} p={p} i={i} />
+            <ProjectCard key={p.title + i} p={p} i={i} />
           ))}
         </div>
       </div>
@@ -414,28 +635,43 @@ function Projects() {
   );
 }
 
-function Internships() {
+function Internships({ internships }: { internships: InternshipItem[] }) {
   return (
     <section id="internships" className="relative px-5 py-16 sm:py-32 sm:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
-        <Reveal><SectionLabel num="03" label="Internships" /></Reveal>
+        <Reveal>
+          <SectionLabel num="03" label="Internships" />
+        </Reveal>
 
         <Reveal>
           <h2 className="mb-8 text-center font-display text-[clamp(2rem,9vw,4.5rem)] leading-[1.05] tracking-tight sm:mb-16 sm:text-6xl lg:text-left lg:text-7xl">
-            Work<br /><span className="text-foreground/40">experience.</span>
+            Work
+            <br />
+            <span className="text-foreground/40">experience.</span>
           </h2>
         </Reveal>
 
         <div className="space-y-5 sm:space-y-6">
           {internships.map((intern, i) => (
-            <Reveal key={intern.org} i={i}>
+            <Reveal key={intern.org + i} i={i}>
               <div className="mac-card group transition-all duration-500 hover:-translate-y-1">
                 {/* Titlebar */}
                 <div className="mac-titlebar">
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-red)" }} />
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-yellow)" }} />
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-green)" }} />
-                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">{intern.tag}</span>
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-red)" }}
+                  />
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-yellow)" }}
+                  />
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-green)" }}
+                  />
+                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">
+                    {intern.tag}
+                  </span>
                 </div>
 
                 <div className="bg-[linear-gradient(160deg,var(--card-from),var(--card-to))] p-4 sm:p-6">
@@ -493,7 +729,10 @@ function Internships() {
                       {/* Points */}
                       <ul className="mt-4 space-y-2 border-t border-[color:var(--card-accent)]/15 pt-3 sm:pt-4">
                         {intern.points.map((pt) => (
-                          <li key={pt} className="flex gap-2 text-xs text-[color:var(--card-fg-soft)]/75 sm:text-sm">
+                          <li
+                            key={pt}
+                            className="flex gap-2 text-xs text-[color:var(--card-fg-soft)]/75 sm:text-sm"
+                          >
                             <span className="mt-1.5 inline-block h-px w-3 shrink-0 bg-[color:var(--card-fg)]/20" />
                             <span>{pt}</span>
                           </li>
@@ -511,33 +750,50 @@ function Internships() {
   );
 }
 
-function Certificates() {
+function Certificates({ certs }: { certs: CertItem[] }) {
   return (
     <section id="certificates" className="relative px-5 py-16 sm:py-32 sm:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
-        <Reveal><SectionLabel num="04" label="Certificates" /></Reveal>
+        <Reveal>
+          <SectionLabel num="04" label="Certificates" />
+        </Reveal>
 
         <Reveal>
           <h2 className="mb-8 text-center font-display text-[clamp(2rem,9vw,4.5rem)] leading-[1.05] tracking-tight sm:mb-16 sm:text-6xl lg:text-left lg:text-7xl">
-            Credentials<br /><span className="text-foreground/40">& training.</span>
+            Credentials
+            <br />
+            <span className="text-foreground/40">& training.</span>
           </h2>
         </Reveal>
 
         <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3">
           {certs.map((c, i) => (
-            <Reveal key={c.title} i={i}>
+            <Reveal key={c.title + i} i={i}>
               <div className="mac-card group h-full flex flex-col transition-all duration-500 hover:-translate-y-1">
                 {/* Titlebar */}
                 <div className="mac-titlebar">
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-red)" }} />
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-yellow)" }} />
-                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: "var(--card-dot-green)" }} />
-                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">{c.issuer}</span>
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-red)" }}
+                  />
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-yellow)" }}
+                  />
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full"
+                    style={{ background: "var(--card-dot-green)" }}
+                  />
+                  <span className="ml-3 flex-1 overflow-hidden truncate text-center font-mono text-[10px] text-foreground/20 tracking-[0.2em] uppercase">
+                    {c.issuer}
+                  </span>
                 </div>
 
                 <div className="flex-1 bg-[linear-gradient(160deg,var(--card-from),var(--card-to))] p-4 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[color:var(--card-accent)]">{c.date}</div>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[color:var(--card-accent)]">
+                      {c.date}
+                    </div>
                     {c.logo ? (
                       <div className="h-10 w-10 overflow-hidden rounded-xl border border-[color:var(--card-fg)]/10 sm:h-12 sm:w-12">
                         <img src={c.logo} alt={c.issuer} className="h-full w-full object-cover" />
@@ -546,7 +802,9 @@ function Certificates() {
                       <div className="h-2 w-2 rounded-full bg-[color:var(--card-accent)]/50" />
                     )}
                   </div>
-                  <h3 className="mt-4 font-display text-base leading-snug text-[color:var(--card-fg)] sm:mt-5 sm:text-xl">{c.title}</h3>
+                  <h3 className="mt-4 font-display text-base leading-snug text-[color:var(--card-fg)] sm:mt-5 sm:text-xl">
+                    {c.title}
+                  </h3>
                   <div className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[color:var(--card-accent)] sm:text-[10px] sm:tracking-[0.25em]">
                     {c.issuer}
                   </div>
@@ -568,17 +826,37 @@ function Certificates() {
   );
 }
 
+function Contact({ bio, onTriggerDevMode }: { bio: BioData; onTriggerDevMode: () => void }) {
+  const clickTimestamps = useRef<number[]>([]);
+  const [clickCount, setClickCount] = useState(0);
 
+  const handleFooterClick = () => {
+    const now = Date.now();
+    // Keep clicks within 7 seconds
+    clickTimestamps.current = clickTimestamps.current.filter((t) => now - t < 7000);
+    clickTimestamps.current.push(now);
+    const count = clickTimestamps.current.length;
+    setClickCount(count);
 
-function Contact() {
+    if (count >= 7) {
+      clickTimestamps.current = [];
+      setClickCount(0);
+      onTriggerDevMode();
+    }
+  };
+
   return (
     <section id="contact" className="relative px-5 py-16 sm:py-32 sm:px-12 lg:px-20">
       <div className="mx-auto max-w-5xl text-center">
-        <Reveal><SectionLabel num="05" label="Contact" /></Reveal>
+        <Reveal>
+          <SectionLabel num="05" label="Contact" />
+        </Reveal>
 
         <Reveal>
           <h2 className="font-display text-[clamp(2.8rem,12vw,9vw)] leading-[0.93] tracking-tight">
-            Let's build<br /><span className="text-foreground/40">something.</span>
+            Let's build
+            <br />
+            <span className="text-foreground/40">something.</span>
           </h2>
         </Reveal>
 
@@ -590,7 +868,7 @@ function Contact() {
 
         <Reveal i={2}>
           <a
-            href="mailto:surajit007inc@gmail.com"
+            href={`mailto:${bio.email}`}
             className="mt-8 inline-flex items-center gap-3 rounded-full border border-foreground/20 bg-foreground/5 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.3em] backdrop-blur-xl transition-all hover:border-accent hover:bg-foreground/10 sm:mt-10 sm:px-8 sm:py-4 sm:text-xs"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse-glow" />
@@ -608,42 +886,58 @@ function Contact() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               {[
-                { href: "https://surajitsahoo.netlify.app/", icon: Globe, label: "Portfolio" },
-                { href: "https://github.com/Surajit00007", icon: Github, label: "GitHub" },
-                { href: "https://linkedin.com/in/surajit-sahoo-084173335", icon: Linkedin, label: "LinkedIn" },
-                { href: "https://instagram.com/surajit._007", icon: Instagram, label: "Instagram" },
-                { href: "mailto:surajit007inc@gmail.com", icon: Mail, label: "Email" },
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith("mailto") ? undefined : "_blank"}
-                  rel={s.href.startsWith("mailto") ? undefined : "noreferrer"}
-                  aria-label={s.label}
-                  className="group relative flex h-12 w-12 items-center justify-center rounded-full border border-border bg-foreground/[0.03] transition-all duration-500 hover:border-accent/50 hover:bg-accent/10 sm:h-11 sm:w-11"
-                >
-                  <s.icon className="h-[18px] w-[18px] text-muted-foreground transition-colors duration-500 group-hover:text-accent sm:h-[16px] sm:w-[16px]" strokeWidth={1.5} />
-                  <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    style={{ boxShadow: "0 0 20px color-mix(in oklch, var(--accent-glow) 30%, transparent)" }}
-                  />
-                </a>
-              ))}
+                { href: bio.portfolio, icon: Globe, label: "Portfolio" },
+                { href: bio.github, icon: Github, label: "GitHub" },
+                { href: bio.linkedin, icon: Linkedin, label: "LinkedIn" },
+                { href: bio.instagram, icon: Instagram, label: "Instagram" },
+                { href: `mailto:${bio.email}`, icon: Mail, label: "Email" },
+              ]
+                .filter((s) => Boolean(s.href))
+                .map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target={s.href.startsWith("mailto") ? undefined : "_blank"}
+                    rel={s.href.startsWith("mailto") ? undefined : "noreferrer"}
+                    aria-label={s.label}
+                    className="group relative flex h-12 w-12 items-center justify-center rounded-full border border-border bg-foreground/[0.03] transition-all duration-500 hover:border-accent/50 hover:bg-accent/10 sm:h-11 sm:w-11"
+                  >
+                    <s.icon
+                      className="h-[18px] w-[18px] text-muted-foreground transition-colors duration-500 group-hover:text-accent sm:h-[16px] sm:w-[16px]"
+                      strokeWidth={1.5}
+                    />
+                    <span
+                      className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                      style={{
+                        boxShadow:
+                          "0 0 20px color-mix(in oklch, var(--accent-glow) 30%, transparent)",
+                      }}
+                    />
+                  </a>
+                ))}
             </div>
 
-            <a
-              href="/resume.pdf"
-              download
-              className="group relative inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground transition-colors hover:text-foreground"
+            <div
+              onClick={handleFooterClick}
+              className="text-sm text-muted-foreground select-none cursor-pointer transition-all duration-300 hover:text-foreground/90 active:scale-95 py-1 px-3 rounded-full hover:bg-foreground/[0.03]"
+              title="Made with ♥ by Surajit Sahoo"
             >
-              <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
-              Download Resume
-            </a>
-            <div className="text-sm text-muted-foreground">
-              Made with <span className="text-accent">♥</span> by Surajit Sahoo
+              Made with{" "}
+              <span
+                className={`text-accent inline-block transition-transform duration-300 ${
+                  clickCount > 0 ? "scale-125 animate-pulse" : ""
+                }`}
+              >
+                ♥
+              </span>{" "}
+              by {bio.name}
+              {clickCount >= 3 && clickCount < 7 && (
+                <span className="ml-2 font-mono text-[10px] text-accent/80 animate-pulse">
+                  [{7 - clickCount}]
+                </span>
+              )}
             </div>
-            <div className="text-xs text-muted-foreground/60">
-              © 2026 All rights reserved.
-            </div>
+            <div className="text-xs text-muted-foreground/60">© 2026 All rights reserved.</div>
           </div>
         </div>
       </div>

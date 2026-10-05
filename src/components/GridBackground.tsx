@@ -42,8 +42,7 @@ export function GridBackground() {
         aria-hidden
         className="absolute inset-0"
         style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 30%, var(--background) 85%)",
+          background: "radial-gradient(ellipse at center, transparent 30%, var(--background) 85%)",
         }}
       />
     </div>

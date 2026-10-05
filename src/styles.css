@@ -95,8 +95,14 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); border-width: 0; }
-  html { scroll-behavior: smooth; overflow-x: hidden; }
+  * {
+    border-color: var(--color-border);
+    border-width: 0;
+  }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -104,11 +110,20 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
-  ::selection { background: var(--accent); color: var(--background); }
+  ::selection {
+    background: var(--accent);
+    color: var(--background);
+  }
 }
 
-@utility font-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em; }
-@utility font-mono { font-family: var(--font-mono); }
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+@utility font-mono {
+  font-family: var(--font-mono);
+}
 
 @utility glass {
   background: color-mix(in oklch, var(--surface) 60%, transparent);
@@ -121,7 +136,9 @@
   text-shadow: 0 0 60px color-mix(in oklch, var(--accent-glow) 40%, transparent);
 }
 
-@utility grain { position: relative; }
+@utility grain {
+  position: relative;
+}
 @utility grain-overlay {
   position: fixed;
   inset: 0;
@@ -137,13 +154,17 @@
   overflow: hidden;
   border: 1px solid var(--card-chrome-border);
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.06),
-    0 8px 40px rgba(0,0,0,0.5),
-    0 2px 8px rgba(0,0,0,0.35);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 @utility mac-titlebar {
-  background: linear-gradient(180deg, var(--card-chrome) 0%, color-mix(in srgb, var(--card-chrome) 90%, black) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--card-chrome) 0%,
+    color-mix(in srgb, var(--card-chrome) 90%, black) 100%
+  );
   border-bottom: 1px solid var(--card-chrome-border);
   display: flex;
   align-items: center;
@@ -152,29 +173,59 @@
 }
 
 @keyframes drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(5%, -3%) scale(1.05); }
-  66% { transform: translate(-3%, 4%) scale(0.98); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(5%, -3%) scale(1.05);
+  }
+  66% {
+    transform: translate(-3%, 4%) scale(0.98);
+  }
 }
-@utility animate-drift { animation: drift 24s ease-in-out infinite; }
+@utility animate-drift {
+  animation: drift 24s ease-in-out infinite;
+}
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
 }
-@utility animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+@utility animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
 
 @keyframes scan {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
 }
-@utility animate-scan { animation: scan 8s linear infinite; }
+@utility animate-scan {
+  animation: scan 8s linear infinite;
+}
 
 @keyframes gridScroll {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 80px; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 80px;
+  }
 }
 @keyframes gridScrollReverse {
-  0% { background-position: 0 80px; }
-  100% { background-position: 0 0; }
+  0% {
+    background-position: 0 80px;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
