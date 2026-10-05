@@ -1,7 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { DevDashboard } from "@/components/DevDashboard";
-import { DevLoginModal } from "@/components/DevLoginModal";
+import { useState, useEffect, lazy, Suspense } from "react";
+
+const DevDashboard = lazy(() =>
+  import("@/components/DevDashboard").then((m) => ({ default: m.DevDashboard }))
+);
+const DevLoginModal = lazy(() =>
+  import("@/components/DevLoginModal").then((m) => ({ default: m.DevLoginModal }))
+);
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { Lock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -83,25 +88,35 @@ function AdminPage() {
           </Button>
         </div>
 
-        <DevLoginModal
-          open={loginModalOpen}
-          onOpenChange={(open) => {
-            setLoginModalOpen(open);
-            if (!open && !isAuthenticated) {
-              navigate({ to: "/" });
-            }
-          }}
-          onSuccess={() => setIsAuthenticated(true)}
-        />
+        <Suspense fallback={null}>
+          <DevLoginModal
+            open={loginModalOpen}
+            onOpenChange={(open) => {
+              setLoginModalOpen(open);
+              if (!open && !isAuthenticated) {
+                navigate({ to: "/" });
+              }
+            }}
+            onSuccess={() => setIsAuthenticated(true)}
+          />
+        </Suspense>
       </div>
     );
   }
 
   return (
-    <DevDashboard
-      initialData={data}
-      onClose={() => navigate({ to: "/" })}
-      onLogout={handleLogout}
-    />
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background text-foreground font-mono text-xs">
+          Loading Dashboard...
+        </div>
+      }
+    >
+      <DevDashboard
+        initialData={data}
+        onClose={() => navigate({ to: "/" })}
+        onLogout={handleLogout}
+      />
+    </Suspense>
   );
 }

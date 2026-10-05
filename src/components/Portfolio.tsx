@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Github,
@@ -16,9 +16,14 @@ import { GridBackground } from "./GridBackground";
 import { SuraWidget } from "./SuraWidget";
 import { SideNav } from "./SideNav";
 import { Reveal } from "./Reveal";
-import { DevLoginModal } from "./DevLoginModal";
-import { DevDashboard } from "./DevDashboard";
 import { toast } from "sonner";
+
+const DevLoginModal = lazy(() =>
+  import("./DevLoginModal").then((m) => ({ default: m.DevLoginModal }))
+);
+const DevDashboard = lazy(() =>
+  import("./DevDashboard").then((m) => ({ default: m.DevDashboard }))
+);
 import { usePortfolio } from "@/hooks/use-portfolio";
 import type {
   PortfolioData,
@@ -53,11 +58,13 @@ export function Portfolio({ initialData }: { initialData?: PortfolioData } = {})
   const { data } = usePortfolio(initialData);
 
   // Dev Mode State
+  const [isMounted, setIsMounted] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showDevDashboard, setShowDevDashboard] = useState(false);
   const [isDevUnlocked, setIsDevUnlocked] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     if (typeof window !== "undefined") {
       const isAuth = sessionStorage.getItem("portfolio_dev_auth") === "true";
       setIsDevUnlocked(isAuth);
@@ -140,7 +147,7 @@ export function Portfolio({ initialData }: { initialData?: PortfolioData } = {})
       </main>
 
       {/* Dev Mode Floating Pill (when unlocked) */}
-      {isDevUnlocked && !showDevDashboard && (
+      {isMounted && isDevUnlocked && !showDevDashboard && (
         <button
           type="button"
           onClick={() => setShowDevDashboard(true)}
@@ -153,23 +160,29 @@ export function Portfolio({ initialData }: { initialData?: PortfolioData } = {})
       )}
 
       {/* Dev Mode Fullscreen Dashboard */}
-      {showDevDashboard && (
-        <DevDashboard
-          initialData={data}
-          onClose={() => setShowDevDashboard(false)}
-          onLogout={handleLogout}
-        />
+      {isMounted && showDevDashboard && (
+        <Suspense fallback={null}>
+          <DevDashboard
+            initialData={data}
+            onClose={() => setShowDevDashboard(false)}
+            onLogout={handleLogout}
+          />
+        </Suspense>
       )}
 
       {/* Dev Mode Password Login Modal */}
-      <DevLoginModal
-        open={showLoginModal}
-        onOpenChange={setShowLoginModal}
-        onSuccess={() => {
-          setIsDevUnlocked(true);
-          setShowDevDashboard(true);
-        }}
-      />
+      {isMounted && showLoginModal && (
+        <Suspense fallback={null}>
+          <DevLoginModal
+            open={showLoginModal}
+            onOpenChange={setShowLoginModal}
+            onSuccess={() => {
+              setIsDevUnlocked(true);
+              setShowDevDashboard(true);
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Chatbot — fixed overlay, zero layout footprint */}
       <div className="pointer-events-none fixed inset-0 z-50">
