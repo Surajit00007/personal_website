@@ -1,7 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { Portfolio } from "@/components/Portfolio";
+import { defaultPortfolioData, type PortfolioData } from "@/lib/portfolio-data";
+
+const getPortfolioServerData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PortfolioData> => {
+    try {
+      const { getPortfolioDataFromDb } = await import("@/lib/db.server");
+      return await getPortfolioDataFromDb();
+    } catch (e) {
+      console.error("SSR loader failed to fetch from DB:", e);
+      return defaultPortfolioData;
+    }
+  },
+);
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    try {
+      return await getPortfolioServerData();
+    } catch {
+      return defaultPortfolioData;
+    }
+  },
   head: () => ({
     meta: [
       { title: "Surajit Sahoo — AI/ML Engineer" },
@@ -18,5 +39,10 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Portfolio,
+  component: IndexPage,
 });
+
+function IndexPage() {
+  const initialData = Route.useLoaderData();
+  return <Portfolio initialData={initialData} />;
+}

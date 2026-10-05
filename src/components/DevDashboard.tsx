@@ -116,9 +116,14 @@ export function DevDashboard({ initialData, onClose, onLogout }: DevDashboardPro
         throw new Error(json.error || "Failed to update Neon DB");
       }
 
-      // Update state and TanStack Query Cache in real-time
+      // Update state, localStorage, and TanStack Query Cache in real-time
       const returnedData = (json.data as PortfolioData) || updatedData;
       setData(returnedData);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("portfolio_cached_data", JSON.stringify(returnedData));
+        } catch {}
+      }
       queryClient.setQueryData(["portfolio-data"], returnedData);
       await queryClient.invalidateQueries({ queryKey: ["portfolio-data"] });
 
@@ -156,6 +161,11 @@ export function DevDashboard({ initialData, onClose, onLogout }: DevDashboardPro
 
       const returnedData = (json.data as PortfolioData) || data;
       setData(returnedData);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("portfolio_cached_data", JSON.stringify(returnedData));
+        } catch {}
+      }
       queryClient.setQueryData(["portfolio-data"], returnedData);
       await queryClient.invalidateQueries({ queryKey: ["portfolio-data"] });
 
@@ -198,6 +208,11 @@ export function DevDashboard({ initialData, onClose, onLogout }: DevDashboardPro
       }
 
       setData(defaultPortfolioData);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("portfolio_cached_data", JSON.stringify(defaultPortfolioData));
+        } catch {}
+      }
       queryClient.setQueryData(["portfolio-data"], defaultPortfolioData);
       await queryClient.invalidateQueries({ queryKey: ["portfolio-data"] });
 
