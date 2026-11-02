@@ -1,6 +1,48 @@
 import { useQuery } from "@tanstack/react-query";
 import { defaultPortfolioData, type PortfolioData } from "@/lib/portfolio-data";
 
+function withDefaultPreviewProjects(data: PortfolioData): PortfolioData {
+  const defaultPreviewProjects = defaultPortfolioData.personalProjects.filter(
+    (project) => project.liveUrl || project.previewImage,
+  );
+  const personalProjects = data.personalProjects
+    .filter(
+      (project) =>
+        project.title !== "Swallet App — Expense Tracker" &&
+        project.repo !== "https://github.com/Surajit00007/Swallet",
+    )
+    .map((project) => {
+      const defaultProject = defaultPreviewProjects.find(
+        (candidate) =>
+          candidate.title === project.title || (project.repo && candidate.repo === project.repo),
+      );
+
+      return defaultProject?.previewImage
+        ? {
+            ...project,
+            image: defaultProject.image,
+            previewUrl: project.previewUrl ?? defaultProject.previewUrl,
+            previewImage: project.previewImage ?? defaultProject.previewImage,
+          }
+        : project;
+    });
+  const missingProjects = defaultPreviewProjects.filter(
+    (defaultProject) =>
+      !personalProjects.some(
+        (project) =>
+          project.title === defaultProject.title ||
+          (defaultProject.repo && project.repo === defaultProject.repo) ||
+          (defaultProject.liveUrl && project.liveUrl === defaultProject.liveUrl),
+      ),
+  );
+
+  return missingProjects.length ||
+    personalProjects.length !== data.personalProjects.length ||
+    personalProjects.some((project, index) => project !== data.personalProjects[index])
+    ? { ...data, personalProjects: [...missingProjects, ...personalProjects] }
+    : data;
+}
+
 function getLocalData(fallback: PortfolioData): PortfolioData {
   if (typeof window !== "undefined") {
     try {
@@ -8,12 +50,12 @@ function getLocalData(fallback: PortfolioData): PortfolioData {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed && typeof parsed === "object" && parsed.bio) {
-          return parsed as PortfolioData;
+          return withDefaultPreviewProjects(parsed as PortfolioData);
         }
       }
     } catch {}
   }
-  return fallback;
+  return withDefaultPreviewProjects(fallback);
 }
 
 export function usePortfolio(initialData?: PortfolioData) {
@@ -33,7 +75,7 @@ export function usePortfolio(initialData?: PortfolioData) {
         }
         const json = await res.json();
         if (json.data) {
-          const freshData = json.data as PortfolioData;
+          const freshData = withDefaultPreviewProjects(json.data as PortfolioData);
           if (typeof window !== "undefined") {
             try {
               localStorage.setItem("portfolio_cached_data", JSON.stringify(freshData));
@@ -50,7 +92,7 @@ export function usePortfolio(initialData?: PortfolioData) {
         return getLocalData(initialData ?? defaultPortfolioData);
       }
     },
-    initialData: initialData,
+    initialData: initialData ? withDefaultPreviewProjects(initialData) : undefined,
     placeholderData: () => getLocalData(initialData ?? defaultPortfolioData),
     staleTime: 0,
     refetchOnMount: "always",

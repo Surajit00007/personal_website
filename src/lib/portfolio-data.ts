@@ -43,6 +43,9 @@ export interface ProjectItem {
   tags: string[];
   repo: string;
   image: string;
+  liveUrl?: string;
+  previewUrl?: string;
+  previewImage?: string;
 }
 
 export interface CertItem {
@@ -211,13 +214,26 @@ export const academicProjects: ProjectItem[] = [
 
 export const personalProjects: ProjectItem[] = [
   {
+    date: "2026",
+    title: "Buzzko — Online Store",
+    sub: "E-commerce · Brand Website",
+    desc: "Designed and built an online storefront for Buzzko, a playful accessories brand selling keychains, phone charms, and frames.",
+    tags: ["E-commerce", "Web Design", "Brand Website"],
+    repo: "",
+    image: "/buzzko-logo.png",
+    liveUrl: "https://surajit00007.github.io/Buzzko_website/",
+  },
+  {
     date: "MARCH 2026",
     title: "Sahara — AI-Based Elderly Health Monitoring System",
     sub: "Hackathon Project · AI Healthcare",
     desc: "Built an AI-driven health monitoring webapp for elderly users with simplified step-by-step logging of vitals (BP, sugar, Hb, weight) and real-time risk scoring. Developed AI Nutrition Tracker using Gemini API to parse Indian meals (Hindi/Odia input) and generate macronutrient insights aligned with ICMR standards. Designed an anaemia risk prediction model using Hb trends and dietary intake with early warning alerts. Implemented SOS emergency system with one-tap alert, live GPS tracking, and SMS integration.",
     tags: ["Gemini API", "AI Healthcare", "Risk Scoring", "Python", "SMS Alert"],
-    repo: "https://github.com/Surajit00007",
-    image: "chatbotAgent",
+    repo: "https://github.com/Ayush-Raj-Chourasia/SAHARA",
+    image: "/sahara-logo.svg",
+    liveUrl: "https://sahara-flax.vercel.app/",
+    previewUrl: "https://sahara-flax.vercel.app/",
+    previewImage: "/sahara-preview.jpg",
   },
   {
     date: "Feb 2026",
@@ -226,7 +242,9 @@ export const personalProjects: ProjectItem[] = [
     desc: "Developed Local Drop, a secure peer-to-peer file transfer application enabling seamless file sharing between devices over local networks using WebRTC DataChannels, eliminating the need for cloud storage or third-party servers. Implemented real-time encrypted file transfer with chunked streaming, progress tracking (percentage, speed, ETA) and bidirectional sharing (laptop to phone and vice versa).",
     tags: ["WebRTC", "Networking", "P2P", "Encryption", "File Transfer"],
     repo: "https://github.com/Surajit00007/LocalDrop-fileshare",
-    image: "webrtcFileshare",
+    image: "/localdrop-logo.jpg",
+    previewUrl: "https://localdrop-fileshare.netlify.app/",
+    previewImage: "/localdrop-preview.png",
   },
   {
     date: "Dec 2025",
@@ -236,15 +254,6 @@ export const personalProjects: ProjectItem[] = [
     tags: ["Ollama", "LLM", "Python"],
     repo: "https://github.com/Surajit00007/Customised_GPT_project",
     image: "localLlm",
-  },
-  {
-    date: "March 2025",
-    title: "Swallet App — Expense Tracker",
-    sub: "Personal Finance App",
-    desc: "Developed Swallet, a personal finance tracking app using Streamlit, enabling users to log income and expenses in INR with intuitive UI. Implemented pie charts and graphs for spending insights; local CSV-based storage for privacy.",
-    tags: ["Streamlit", "Data Viz", "Python"],
-    repo: "https://github.com/Surajit00007/Swallet",
-    image: "expenseTracker",
   },
   {
     date: "Jun 2024",

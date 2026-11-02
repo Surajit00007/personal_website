@@ -503,6 +503,7 @@ function ProjectCard({ p, i }: { p: ProjectItem; i: number }) {
   const imageSrc =
     imageMap[p.image] ||
     (p.image && (p.image.startsWith("http") || p.image.startsWith("/")) ? p.image : null);
+  const previewUrl = p.previewUrl ?? p.liveUrl ?? p.repo;
 
   return (
     <Reveal key={p.title + i} i={i}>
@@ -535,7 +536,11 @@ function ProjectCard({ p, i }: { p: ProjectItem; i: number }) {
             <div className="flex shrink-0 flex-col items-start gap-2">
               <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-[color:var(--card-accent)]/20 bg-[color:var(--card-accent)]/10 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.25)] sm:h-32 sm:w-32">
                 {imageSrc ? (
-                  <img src={imageSrc} alt={p.title} className="h-full w-full object-cover" />
+                  <img
+                    src={imageSrc}
+                    alt={`${p.title} logo`}
+                    className={`h-full w-full ${p.liveUrl ? "bg-white object-contain p-1" : "object-cover"}`}
+                  />
                 ) : (
                   <>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_60%)]" />
@@ -562,6 +567,34 @@ function ProjectCard({ p, i }: { p: ProjectItem; i: number }) {
             </div>
           </div>
 
+          {p.liveUrl || p.previewImage ? (
+            <div className="mt-5 overflow-hidden rounded-xl border border-[color:var(--card-fg)]/15 bg-background/80 shadow-lg">
+              <div className="flex items-center gap-1.5 border-b border-[color:var(--card-fg)]/10 px-3 py-2">
+                <span className="h-2 w-2 rounded-full bg-[var(--card-dot-red)]" />
+                <span className="h-2 w-2 rounded-full bg-[var(--card-dot-yellow)]" />
+                <span className="h-2 w-2 rounded-full bg-[var(--card-dot-green)]" />
+                <span className="ml-2 min-w-0 flex-1 truncate rounded-md bg-foreground/5 px-2 py-1 font-mono text-[9px] text-muted-foreground">
+                  {previewUrl}
+                </span>
+              </div>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Open ${p.title} preview`}
+              >
+                <span className="block h-56 sm:h-80">
+                  <img
+                    src={p.previewImage ?? "/buzzko-preview.png"}
+                    alt={`Preview of the ${p.title} landing page`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </span>
+              </a>
+            </div>
+          ) : null}
+
           {/* Description + tags + CTA below */}
           <p className="mt-4 text-sm leading-relaxed text-[color:var(--card-fg-soft)]/75 sm:mt-4">
             {p.desc}
@@ -576,6 +609,18 @@ function ProjectCard({ p, i }: { p: ProjectItem; i: number }) {
               </span>
             ))}
           </div>
+          {p.liveUrl ? (
+            <a
+              href={p.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[color:var(--card-fg)]/15 bg-[color:var(--card-fg)]/5 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[color:var(--card-fg)]/80 transition-all duration-300 hover:border-[color:var(--card-fg)]/30 hover:bg-[color:var(--card-fg)]/10 hover:text-[color:var(--card-fg)] sm:mt-5 sm:w-auto"
+            >
+              <Globe className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <span>View Live Site</span>
+              <ExternalLink className="h-3 w-3" strokeWidth={1.75} />
+            </a>
+          ) : null}
           {p.repo ? (
             <a
               href={p.repo}
@@ -620,26 +665,26 @@ function Projects({
           </p>
         </Reveal>
 
-        {/* Academic Projects */}
-        <div className="mb-6 flex items-center justify-center gap-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent lg:justify-start">
-          <span className="h-px w-8 bg-accent/40" />
-          <span>Academic Projects</span>
-          <span className="h-px w-8 bg-accent/40" />
-        </div>
-        <div className="mb-20 space-y-6">
-          {academicProjects.map((p, i) => (
-            <ProjectCard key={p.title + i} p={p} i={i} />
-          ))}
-        </div>
-
         {/* Personal Projects */}
         <div className="mb-6 flex items-center justify-center gap-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent lg:justify-start">
           <span className="h-px w-8 bg-accent/40" />
           <span>Personal Projects</span>
           <span className="h-px w-8 bg-accent/40" />
         </div>
-        <div className="space-y-6">
+        <div className="mb-20 space-y-6">
           {personalProjects.map((p, i) => (
+            <ProjectCard key={p.title + i} p={p} i={i} />
+          ))}
+        </div>
+
+        {/* Academic Projects */}
+        <div className="mb-6 flex items-center justify-center gap-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent lg:justify-start">
+          <span className="h-px w-8 bg-accent/40" />
+          <span>Academic Projects</span>
+          <span className="h-px w-8 bg-accent/40" />
+        </div>
+        <div className="space-y-6">
+          {academicProjects.map((p, i) => (
             <ProjectCard key={p.title + i} p={p} i={i} />
           ))}
         </div>
